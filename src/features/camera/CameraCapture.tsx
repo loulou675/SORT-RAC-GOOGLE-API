@@ -243,22 +243,22 @@ async function getUserMediaWithTimeout(constraints: MediaStreamConstraints) {
 }
 
 async function startCameraStream(facingMode: 'environment' | 'user') {
-  try {
-    return await getUserMediaWithTimeout({
-      video: {
+  const stream = await getUserMediaWithTimeout({ video: true, audio: false })
+  const track = stream.getVideoTracks()[0]
+
+  if (track) {
+    try {
+      await track.applyConstraints({
         facingMode: { ideal: facingMode },
         width: { ideal: 1280 },
         height: { ideal: 720 },
-      },
-      audio: false,
-    })
-  } catch (error) {
-    const errorName = error instanceof DOMException ? error.name : ''
-    const canRetryWithDefaultCamera = ['NotFoundError', 'NotReadableError', 'OverconstrainedError'].includes(errorName)
-    if (!canRetryWithDefaultCamera) throw error
-
-    return getUserMediaWithTimeout({ video: true, audio: false })
+      })
+    } catch {
+      // Keep the working default camera when optional constraints are unsupported.
+    }
   }
+
+  return stream
 }
 
 function stopStream(streamRef: { current: MediaStream | null }) {
