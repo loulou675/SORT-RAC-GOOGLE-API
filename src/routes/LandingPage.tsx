@@ -2,7 +2,6 @@ import { ImageUp, ScanLine, X } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { BinPanel } from '../components/BinPanel'
-import { ItemGlyph } from '../components/ItemGlyph'
 import { StatusBlock } from '../components/StatusBlock'
 import { TrainingFeedbackPanel } from '../components/TrainingFeedbackPanel'
 import { UserSurveyModal } from '../components/UserSurveyModal'
@@ -10,7 +9,6 @@ import { CameraCapture } from '../features/camera/CameraCapture'
 import { isEmbeddedSocialBrowser } from '../features/camera/browserSupport'
 import { fileToDataUrl } from '../features/camera/fileInput'
 import { evaluateDisposal, evaluateMaterialFallback, getDefaultConditionForItem, getQuestionForItem } from '../features/sorting/ruleEngine'
-import { bins } from '../data/referenceData'
 import { AppError, messageForError, messageForErrorVi, toAppError } from '../lib/errors'
 import { maxImageMegabytes } from '../lib/validation/imageValidation'
 import { createVisionProvider } from '../providers/vision'
@@ -36,67 +34,6 @@ interface PendingSurvey {
 const surveySessionKey = 'sot-rac-post-scan-survey-v3-shown'
 const surveyResultDelayMs = Number(import.meta.env.VITE_SURVEY_DELAY_MS ?? 12_000)
 let surveySessionFallbackShown = false
-const demoBins = bins
-  .filter((bin) => bin.isActive && bin.code !== 'mixed_uncertain')
-  .sort((first, second) => first.sortOrder - second.sortOrder)
-const demoItemByBin: Record<string, string> = {
-  bottle_can: 'plastic_water_bottle',
-  organic: 'fruit_core',
-  clean_plastic: 'plastic_takeaway_cup',
-  paper_cardboard: 'book',
-  landfill: 'tissue',
-  special_handling: 'battery',
-}
-const demoRecognitionByBin: Record<string, RecognitionDetails> = {
-  bottle_can: {
-    observedLabel: 'Plastic water bottle',
-    materialLabel: 'PET plastic',
-    condition: 'clean',
-    parts: [{ name: 'Bottle cap', material: 'Rigid plastic', condition: 'clean', confidence: 0.96 }],
-    confidence: 0.97,
-    reason: 'The item appears to be an empty drink bottle with a recyclable PET body.',
-  },
-  organic: {
-    observedLabel: 'Fruit core',
-    materialLabel: 'Organic material',
-    condition: 'contains_food_or_liquid',
-    parts: [],
-    confidence: 0.95,
-    reason: 'Food scraps and fruit waste belong in the Organic Waste stream.',
-  },
-  clean_plastic: {
-    observedLabel: 'Plastic takeaway cup',
-    materialLabel: 'Rigid plastic',
-    condition: 'empty',
-    parts: [{ name: 'Plastic lid', material: 'Rigid plastic', condition: 'clean', confidence: 0.91 }],
-    confidence: 0.92,
-    reason: 'The demo item is an empty, clean plastic container suitable for the Clean Plastic stream.',
-  },
-  paper_cardboard: {
-    observedLabel: 'Book',
-    materialLabel: 'Paper and cardboard',
-    condition: 'clean',
-    parts: [],
-    confidence: 0.94,
-    reason: 'Clean, dry paper products belong in the Paper & Cardboard stream.',
-  },
-  landfill: {
-    observedLabel: 'Tissue',
-    materialLabel: 'Paper fibre',
-    condition: 'dirty',
-    parts: [],
-    confidence: 0.9,
-    reason: 'Used or contaminated tissues should go to Landfill instead of paper recycling.',
-  },
-  special_handling: {
-    observedLabel: 'Battery',
-    materialLabel: 'Hazardous electronic material',
-    condition: 'unknown',
-    parts: [],
-    confidence: 0.98,
-    reason: 'Batteries require an approved collection point and should not enter general waste bins.',
-  },
-}
 
 function markSurveyShownForSession() {
   try {
@@ -414,24 +351,6 @@ export function LandingPage() {
                 <span>Upload an Image</span>
               </button>
             </div>
-            {!errorCode ? <DemoBins onSelect={(binCode) => {
-              const itemCode = demoItemByBin[binCode]
-              const details = demoRecognitionByBin[binCode]
-              if (!itemCode) return
-
-              try {
-                setResult(getDisposalForItem(itemCode))
-                setRecognitionDetails(details)
-                setImagePreview(undefined)
-                setPredictedItemCode(itemCode)
-                setInputMethod('manual')
-                setFeedbackDelivery(undefined)
-                setResultCollapsed(false)
-                setErrorCode(undefined)
-              } catch {
-                setErrorCode('RULE_NOT_FOUND')
-              }
-            }} /> : null}
             {errorCode ? (
               <p className="inline-error" aria-live="polite">
                 {messageForError(errorCode)}
@@ -513,25 +432,6 @@ export function LandingPage() {
           }}
         />
       ) : null}
-    </section>
-  )
-}
-
-function DemoBins({ onSelect }: { onSelect: (binCode: string) => void }) {
-  return (
-    <section className="demo-bins" aria-labelledby="demo-bins-title">
-      <div className="demo-bins-heading">
-        <span className="demo-bins-kicker">Sorting station</span>
-        <h2 id="demo-bins-title">Six ways to sort</h2>
-      </div>
-      <div className="demo-bins-grid">
-        {demoBins.map((bin) => (
-          <button type="button" className="demo-bin-card" key={bin.code} style={{ borderTopColor: bin.colorHex }} onClick={() => onSelect(bin.code)}>
-            <ItemGlyph objectType={bin.iconKey} />
-            <strong>{bin.nameEn}</strong>
-          </button>
-        ))}
-      </div>
     </section>
   )
 }

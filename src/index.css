@@ -1955,84 +1955,6 @@ button .vi-note {
   border-color: rgba(23, 20, 17, 0.2);
 }
 
-.demo-bins {
-  width: min(100%, 36rem);
-  margin-top: clamp(2rem, 4vw, 3.2rem);
-  text-align: left;
-}
-
-.demo-bins-heading {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 0.7rem;
-}
-
-.demo-bins-kicker {
-  color: var(--muted-ink);
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.demo-bins-heading h2 {
-  margin: 0;
-  color: var(--muted-ink);
-  font-size: 0.88rem;
-  font-weight: 700;
-}
-
-.demo-bins-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.55rem;
-}
-
-.demo-bin-card {
-  display: flex;
-  align-items: center;
-  gap: 0.62rem;
-  width: 100%;
-  min-width: 0;
-  min-height: 3.55rem;
-  padding: 0.62rem 0.7rem;
-  border: 1px solid rgba(23, 20, 17, 0.12);
-  border-top: 0.22rem solid transparent;
-  border-radius: 0.72rem;
-  background: rgba(255, 250, 244, 0.68);
-  box-shadow: 0 0.35rem 0.8rem rgba(69, 48, 35, 0.05);
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
-}
-
-.demo-bin-card:hover,
-.demo-bin-card:focus-visible {
-  background: var(--surface);
-  box-shadow: 0 0.55rem 1rem rgba(69, 48, 35, 0.12);
-  transform: translateY(-1px);
-}
-
-.demo-bin-card .item-glyph {
-  flex: 0 0 2rem;
-  width: 2rem;
-  height: 2rem;
-  color: var(--ink);
-  background: color-mix(in srgb, currentColor 10%, var(--surface));
-}
-
-.demo-bin-card strong {
-  min-width: 0;
-  color: var(--ink);
-  font-size: 0.78rem;
-  font-weight: 760;
-  line-height: 1.15;
-}
-
 .ghost-action {
   background: transparent;
   border-color: rgba(23, 20, 17, 0.2);
@@ -4370,43 +4292,6 @@ button:disabled {
   .recognition-copy > .button-row svg {
     width: 1.5rem;
     height: 1.5rem;
-  }
-
-  .demo-bins {
-    width: min(100%, 19rem);
-    margin-top: 1.8rem;
-  }
-
-  .demo-bins-heading {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 0.18rem;
-    margin-bottom: 0.6rem;
-  }
-
-  .demo-bins-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .demo-bin-card {
-    gap: 0.45rem;
-    min-height: 3.2rem;
-    padding: 0.5rem;
-  }
-
-  .demo-bin-card .item-glyph {
-    flex-basis: 1.75rem;
-    width: 1.75rem;
-    height: 1.75rem;
-  }
-
-  .demo-bin-card .item-glyph svg {
-    width: 1rem;
-    height: 1rem;
-  }
-
-  .demo-bin-card strong {
-    font-size: 0.68rem;
   }
 
   .bin-panel {
