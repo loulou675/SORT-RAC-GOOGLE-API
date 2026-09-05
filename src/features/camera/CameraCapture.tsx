@@ -23,6 +23,11 @@ interface CapturedFrame {
   qualitySample: Uint8ClampedArray
 }
 
+interface StartedCameraStream {
+  stream: MediaStream
+  isFrontFacing: boolean
+}
+
 function positiveEnvironmentNumber(value: string | undefined, fallback: number) {
   const parsed = Number(value)
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback
@@ -35,13 +40,13 @@ export function CameraCapture({ onCapture, onCancel, onError }: CameraCapturePro
   const onCancelRef = useRef(onCancel)
   const onErrorRef = useRef(onError)
   const [facingMode] = useState<'environment' | 'user'>(() =>
-    window.matchMedia('(max-width: 860px)').matches ? 'environment' : 'user',
+    window.matchMedia('(pointer: coarse)').matches ? 'environment' : 'user',
   )
+  const [isFrontCamera, setIsFrontCamera] = useState(facingMode === 'user')
   const [status, setStatus] = useState('Starting camera...')
   const [statusVi, setStatusVi] = useState('Đang khởi động camera...')
   const [captureState, setCaptureState] = useState<CaptureState>('preview')
   const [capturedImage, setCapturedImage] = useState<string>()
-  const isFrontCamera = facingMode === 'user'
 
   useEffect(() => {
     onCancelRef.current = onCancel
@@ -69,7 +74,7 @@ export function CameraCapture({ onCapture, onCancel, onError }: CameraCapturePro
 
       try {
         stopCamera()
-        const stream = await startCameraStream(facingMode)
+        const { stream, isFrontFacing } = await startCameraStream(facingMode)
 
         if (cancelled) {
           stream.getTracks().forEach((track) => track.stop())
@@ -77,6 +82,7 @@ export function CameraCapture({ onCapture, onCancel, onError }: CameraCapturePro
         }
 
         streamRef.current = stream
+        setIsFrontCamera(isFrontFacing)
         void enableContinuousFocus(stream)
 
         if (videoRef.current) {
@@ -251,22 +257,18 @@ async function getUserMediaWithTimeout(constraints: MediaStreamConstraints) {
 }
 
 async function startCameraStream(facingMode: 'environment' | 'user') {
-  const stream = await getUserMediaWithTimeout({ video: true, audio: false })
+  const stream = await getUserMediaWithTimeout({
+    video: { facingMode: { ideal: facingMode } },
+    audio: false,
+  })
   const track = stream.getVideoTracks()[0]
+  const reportedFacingMode = track?.getSettings?.().facingMode
 
-  if (track) {
-    try {
-      await track.applyConstraints({
-        facingMode: { ideal: facingMode },
-        width: { ideal: 1280 },
-        height: { ideal: 720 },
-      })
-    } catch {
-      // Keep the working default camera when optional constraints are unsupported.
-    }
-  }
-
-  return stream
+  return {
+    stream,
+    // Desktop webcams rarely report a facing mode, so preserve the requested user-facing default.
+    isFrontFacing: reportedFacingMode === 'user' || (!reportedFacingMode && facingMode === 'user'),
+  } satisfies StartedCameraStream
 }
 
 function stopStream(streamRef: { current: MediaStream | null }) {
