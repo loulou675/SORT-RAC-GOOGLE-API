@@ -152,7 +152,7 @@ Always return:
 - material_label: the most specific visible material or material combination.
 - condition: clean, dirty, wet, contains_food_or_liquid, empty, or unknown. Use unknown when the photo cannot support the claim; never assume clean from appearance alone.
 - parts: each separate visible part that could need a different disposal route, such as a lid, pump, straw, cap, paper sleeve, battery, liquid, or food. Do not invent hidden parts. Return [] when there are no clear separate parts.
-- reason: one short evidence-based explanation.
+- reason: one concise visual description of what is visible, maximum 14 words. Never mention the catalogue, item code, model confidence, or matching.
 
 Safety rules:
 - Food or edible leftovers are organic; do not label them as disposable cutlery just because a utensil is visible nearby.

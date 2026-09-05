@@ -220,7 +220,9 @@ function RecognitionSummary({
         <span className="recognition-summary-icon" aria-hidden="true"><Sparkles size={18} /></span>
         <div>
           <p className="eyebrow">Image analysis</p>
-          <h3 id="recognition-summary-heading">{details.observedLabel}</h3>
+          <p id="recognition-summary-heading" className="recognition-summary-description">
+            {shortAnalysisDescription(details.reason, details.observedLabel)}
+          </p>
         </div>
       </div>
       <div className="recognition-facts">
@@ -249,9 +251,19 @@ function RecognitionSummary({
           </ul>
         </div>
       ) : null}
-      <p className="recognition-reason">{details.reason}</p>
     </section>
   )
+}
+
+function shortAnalysisDescription(reason: string, fallbackLabel: string) {
+  const concise = reason
+    .replace(/^the main object is\s+/i, '')
+    .replace(/,?\s*clearly matching\b[^.!?]*[.!?]?/gi, '')
+    .replace(/,?\s*matching\b[^.!?]*\bcatalogue item[.!?]?/gi, '')
+    .trim()
+
+  if (!concise) return fallbackLabel
+  return concise.length > 120 ? `${concise.slice(0, 117).trimEnd()}...` : concise
 }
 
 function findPartRoute(partName: string, componentActions: RuleEngineResult['componentActions']) {
