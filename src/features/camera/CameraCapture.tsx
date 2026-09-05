@@ -24,6 +24,8 @@ export function CameraCapture({ onCapture, onCancel, onError }: CameraCapturePro
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const mountedRef = useRef(true)
+  const onCancelRef = useRef(onCancel)
+  const onErrorRef = useRef(onError)
   const [facingMode] = useState<'environment' | 'user'>(() =>
     window.matchMedia('(max-width: 860px)').matches ? 'environment' : 'user',
   )
@@ -32,6 +34,11 @@ export function CameraCapture({ onCapture, onCancel, onError }: CameraCapturePro
   const [captureState, setCaptureState] = useState<CaptureState>('preview')
   const [capturedImage, setCapturedImage] = useState<string>()
   const isFrontCamera = facingMode === 'user'
+
+  useEffect(() => {
+    onCancelRef.current = onCancel
+    onErrorRef.current = onError
+  }, [onCancel, onError])
 
   useEffect(() => {
     mountedRef.current = true
@@ -48,7 +55,7 @@ export function CameraCapture({ onCapture, onCancel, onError }: CameraCapturePro
       setCapturedImage(undefined)
 
       if (!navigator.mediaDevices?.getUserMedia) {
-        onError('CAMERA_NOT_AVAILABLE')
+        onErrorRef.current('CAMERA_NOT_AVAILABLE')
         return
       }
 
@@ -74,18 +81,19 @@ export function CameraCapture({ onCapture, onCancel, onError }: CameraCapturePro
           setStatusVi('Đưa camera vào vật cần quét rồi chụp ảnh.')
         }
       } catch (error) {
+        if (cancelled) return
         const appError = toAppError(
           error,
           error instanceof DOMException && error.name === 'NotAllowedError'
             ? 'CAMERA_PERMISSION_DENIED'
             : 'CAMERA_NOT_AVAILABLE',
         )
-        onError(appError.code)
+        onErrorRef.current(appError.code)
       }
     }
 
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') onCancel()
+      if (event.key === 'Escape') onCancelRef.current()
     }
 
     window.addEventListener('keydown', handleKeyDown)
@@ -97,7 +105,7 @@ export function CameraCapture({ onCapture, onCancel, onError }: CameraCapturePro
       window.removeEventListener('keydown', handleKeyDown)
       stopCamera()
     }
-  }, [facingMode, onCancel, onError])
+  }, [facingMode])
 
   async function handleCapture() {
     const video = videoRef.current
