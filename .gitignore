@@ -1,0 +1,61 @@
+# Dependencies
+node_modules/
+
+# Local environment files
+.env*
+!.env.example
+
+# Generated output and test artifacts
+dist/
+coverage/
+playwright-report/
+test-results/
+
+# TypeScript and Vite caches
+*.tsbuildinfo
+node_modules/.tmp/
+node_modules/.vite/
+
+# Local YOLO training data and generated training artifacts
+training/dataset/**
+!training/dataset/**/
+!training/dataset/**/.gitkeep
+training/classifier_dataset/
+training/bin_dataset/
+training/bin_dataset_core/
+training/material_dataset/
+training/checkpoints/*
+!training/checkpoints/candidate_v23_full40_seed_frozen_sparse_search.pt
+!training/checkpoints/candidate_v23_full40_seed_frozen_sparse_search.json
+!training/checkpoints/waste_bin_classifier.pt
+training/candidate_datasets/
+training/external_sources/
+training/model_archive/
+training/review_sheets/
+training/review_sheets_taco/
+training/review_rejected/
+training/source_review/
+training/feedback_review/
+training/quarantine/
+training/runs/
+training/exports/
+training/.venv/
+training/models/
+training/component_dataset/
+training/component_dataset_*/
+training/openimages_component_straw/
+training/packwise_component_closure/
+training/__pycache__/
+.training-venv/
+real image/
+yolo26n-cls.pt
+yolo26n.pt
+yolov8s-worldv2.pt
+weights/
+runs/
+
+# Editor and operating-system files
+.DS_Store
+.idea/
+.vscode/
+*.swp

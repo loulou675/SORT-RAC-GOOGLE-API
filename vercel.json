@@ -1,0 +1,8 @@
+{
+  "functions": {
+    "api/analyze-image.js": {
+      "maxDuration": 60,
+      "memory": 1024
+    }
+  }
+}
