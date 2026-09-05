@@ -11,13 +11,21 @@ interface CameraCaptureProps {
 
 const QUALITY_SAMPLE_SIZE = 64
 const CAPTURE_MAX_EDGE = 1600
-const CAMERA_START_TIMEOUT_MS = Number(import.meta.env.VITE_CAMERA_START_TIMEOUT_MS ?? 12_000)
+const CAMERA_START_TIMEOUT_MS = positiveEnvironmentNumber(
+  import.meta.env.VITE_CAMERA_START_TIMEOUT_MS,
+  12_000,
+)
 
 type CaptureState = 'preview' | 'needs-retake' | 'processing'
 
 interface CapturedFrame {
   dataUrl: string
   qualitySample: Uint8ClampedArray
+}
+
+function positiveEnvironmentNumber(value: string | undefined, fallback: number) {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback
 }
 
 export function CameraCapture({ onCapture, onCancel, onError }: CameraCaptureProps) {
