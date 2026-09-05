@@ -54,14 +54,7 @@ export function CameraCapture({ onCapture, onCancel, onError }: CameraCapturePro
 
       try {
         stopCamera()
-        const stream = await getUserMediaWithTimeout({
-          video: {
-            facingMode: { ideal: facingMode },
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
-          },
-          audio: false,
-        })
+        const stream = await startCameraStream(facingMode)
 
         if (cancelled) {
           stream.getTracks().forEach((track) => track.stop())
@@ -238,6 +231,25 @@ async function getUserMediaWithTimeout(constraints: MediaStreamConstraints) {
     return await Promise.race([mediaRequest, timeout])
   } finally {
     if (timeoutId !== undefined) window.clearTimeout(timeoutId)
+  }
+}
+
+async function startCameraStream(facingMode: 'environment' | 'user') {
+  try {
+    return await getUserMediaWithTimeout({
+      video: {
+        facingMode: { ideal: facingMode },
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+      },
+      audio: false,
+    })
+  } catch (error) {
+    const errorName = error instanceof DOMException ? error.name : ''
+    const canRetryWithDefaultCamera = ['NotFoundError', 'NotReadableError', 'OverconstrainedError'].includes(errorName)
+    if (!canRetryWithDefaultCamera) throw error
+
+    return getUserMediaWithTimeout({ video: true, audio: false })
   }
 }
 
