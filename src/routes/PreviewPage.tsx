@@ -42,6 +42,9 @@ export function PreviewPage() {
       }
       setStatus('Checking disposal guidance...')
       await wait(180)
+      if (result.kind === 'multiple') {
+        throw new AppError('MULTIPLE_ITEMS_DETECTED', 'Use the landing screen to view multi-object sorting guidance')
+      }
       if (result.kind === 'material') {
         navigate(`/?material=${result.materialCode}&source=vision`)
       } else {

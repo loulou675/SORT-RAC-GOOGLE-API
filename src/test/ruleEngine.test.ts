@@ -259,10 +259,4 @@ describe('rule engine', () => {
     expect(evaluateMaterialFallback('paper_cardboard', 'wet').destinationBin.code).toBe('landfill')
   })
 
-  it('does not select a disposal bin for a mixed or uncertain material', () => {
-    const result = evaluateMaterialFallback('mixed_uncertain')
-
-    expect(result.destinationBin.code).toBe('mixed_uncertain')
-    expect(result.whyCategory).toContain('not choosing a disposal bin')
-  })
 })

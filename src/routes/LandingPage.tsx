@@ -53,6 +53,7 @@ export function LandingPage() {
   const [imagePreview, setImagePreview] = useState<string>()
   const [inputMethod, setInputMethod] = useState<InputMethod>('camera')
   const [result, setResult] = useState<RuleEngineResult>()
+  const [multipleResults, setMultipleResults] = useState<RuleEngineResult[]>()
   const [recognitionDetails, setRecognitionDetails] = useState<RecognitionDetails>()
   const [predictedItemCode, setPredictedItemCode] = useState<string>()
   const [status, setStatus] = useState<string>()
@@ -92,6 +93,7 @@ export function LandingPage() {
         ? evaluateMaterialFallback(searchedMaterialCode)
         : getDisposalForItem(searchedItemCode as string)
       setResult(disposal)
+      setMultipleResults(undefined)
       setRecognitionDetails(undefined)
       setResultCollapsed(false)
       setErrorCode(undefined)
@@ -158,6 +160,7 @@ export function LandingPage() {
     clearPendingResultSurvey()
     recognitionIdRef.current += 1
     setResult(undefined)
+    setMultipleResults(undefined)
     setRecognitionDetails(undefined)
     setResultCollapsed(false)
     setErrorCode(undefined)
@@ -169,6 +172,7 @@ export function LandingPage() {
     setFeedbackDelivery(undefined)
     setImagePreview(undefined)
     setPredictedItemCode(undefined)
+    setMultipleResults(undefined)
     setInputMethod('camera')
     if (isEmbeddedSocialBrowser()) {
       setErrorCode('CAMERA_EMBEDDED_BROWSER')
@@ -208,25 +212,31 @@ export function LandingPage() {
       if (recognitionId !== recognitionIdRef.current) return false
 
       setStatus('Checking disposal guidance...')
+      const objectResults = visionResult.kind === 'multiple'
+        ? visionResult.itemCodes.map((itemCode) => getDisposalForItem(itemCode))
+        : undefined
       const disposal = visionResult.kind === 'material'
         ? evaluateMaterialFallback(visionResult.materialCode, visionResult.details.condition)
-        : getDisposalForItem(visionResult.itemCode, visionResult.details)
+        : visionResult.kind === 'multiple'
+          ? objectResults![0]
+          : getDisposalForItem(visionResult.itemCode, visionResult.details)
       setPredictedItemCode(visionResult.kind === 'item' ? visionResult.itemCode : undefined)
       setRecognitionDetails(visionResult.details)
 
       setResult(disposal)
+      setMultipleResults(objectResults)
       setResultCollapsed(false)
-      saveScanHistory(disposal, method)
+      ;(objectResults ?? [disposal]).forEach((objectResult) => saveScanHistory(objectResult, method))
       setStage('idle')
       setStatus(undefined)
       void trackFeature(
-        visionResult.kind === 'material' ? 'material_scan_success' : 'scan_success',
+        visionResult.kind === 'multiple' ? 'multiple_scan_success' : visionResult.kind === 'material' ? 'material_scan_success' : 'scan_success',
         'scan_success',
       )
       scheduleResultSurvey({
         inputMethod: method,
         predictedItemCode: visionResult.kind === 'item' ? visionResult.itemCode : undefined,
-        destinationBinCode: disposal.destinationBin.code,
+        destinationBinCode: visionResult.kind === 'multiple' ? undefined : disposal.destinationBin.code,
       })
 
       return true
@@ -238,6 +248,7 @@ export function LandingPage() {
       const appError = error instanceof AppError ? error : toAppError(error, 'INFERENCE_FAILED')
       setErrorCode(appError.code)
       setRecognitionDetails(undefined)
+      setMultipleResults(undefined)
       setPredictedItemCode(undefined)
       setStage('idle')
       setStatus(undefined)
@@ -260,6 +271,7 @@ export function LandingPage() {
       surveyTimerRef.current = undefined
     }
     setResult(undefined)
+    setMultipleResults(undefined)
     setRecognitionDetails(undefined)
     setImagePreview(undefined)
     setErrorCode(undefined)
@@ -298,6 +310,7 @@ export function LandingPage() {
       const correctedResult = getDisposalForItem(correctedCode)
       context.destinationBinCode = correctedResult.destinationBin.code
       setResult(correctedResult)
+      setMultipleResults(undefined)
       setErrorCode(undefined)
       setResultCollapsed(false)
     } catch {
@@ -379,6 +392,7 @@ export function LandingPage() {
         <BinPanel
           bin={result.destinationBin}
           result={result}
+          multipleResults={multipleResults}
           recognitionDetails={recognitionDetails}
           resultPanel
           collapsed={resultCollapsed}

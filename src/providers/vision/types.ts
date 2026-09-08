@@ -15,7 +15,13 @@ export interface MaterialVisionResult {
   details: RecognitionDetails
 }
 
-export type VisionResult = ItemVisionResult | MaterialVisionResult
+export interface MultipleVisionResult {
+  kind: 'multiple'
+  itemCodes: string[]
+  details: RecognitionDetails
+}
+
+export type VisionResult = ItemVisionResult | MaterialVisionResult | MultipleVisionResult
 
 export interface VisionProvider {
   identify(image: Blob | string | HTMLCanvasElement): Promise<VisionResult>

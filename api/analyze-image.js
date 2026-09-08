@@ -62,11 +62,11 @@ export default async function handler(request, response) {
           responseSchema: {
             type: 'object',
             properties: {
-              kind: { type: 'string', enum: ['item', 'material', 'uncertain'] },
+              kind: { type: 'string', enum: ['item', 'multiple', 'material', 'uncertain'] },
               item_code: { type: 'string' },
               material_code: {
                 type: 'string',
-                enum: ['plastic', 'metal', 'paper_cardboard', 'organic', 'glass', 'electronic_battery', 'landfill', 'mixed_uncertain'],
+                enum: ['plastic', 'metal', 'paper_cardboard', 'organic', 'glass', 'electronic_battery', 'landfill'],
               },
               material_label: { type: 'string' },
               condition: {
@@ -81,6 +81,7 @@ export default async function handler(request, response) {
                   type: 'object',
                   properties: {
                     name: { type: 'string' },
+                    item_code: { type: 'string' },
                     material: { type: 'string' },
                     condition: {
                       type: 'string',
@@ -121,6 +122,40 @@ export default async function handler(request, response) {
   const confidence = clampNumber(parsed.confidence)
   const itemCode = allowedCodes.has(parsed.item_code) && confidence >= 0.58 ? parsed.item_code : undefined
   const materialCode = normalizeMaterial(parsed.material_code)
+  const parts = normalizeParts(parsed.parts, allowedCodes)
+
+  if (parsed.kind === 'multiple') {
+    const everyObjectRecognised = parts.length >= 2
+      && parts.length <= 8
+      && parts.every((part) => part.itemCode && part.confidence >= 0.58)
+    if (!everyObjectRecognised) {
+      return response.status(422).json({
+        code: 'MULTIPLE_ITEMS_DETECTED',
+        error: 'Every visible object must be recognised before showing multi-object disposal guidance',
+      })
+    }
+
+    return response.status(200).json({
+      kind: 'multiple',
+      confidence,
+      observedLabel: 'Multiple objects',
+      materialLabel: 'Multiple materials',
+      condition: 'unknown',
+      parts,
+      reason: String(parsed.reason ?? 'Multiple objects were identified in the image.'),
+    })
+  }
+
+  if (
+    parsed.kind === 'uncertain'
+    || (parsed.kind === 'item' && !itemCode)
+    || (parsed.kind === 'material' && !materialCode)
+  ) {
+    return response.status(422).json({
+      code: 'ITEM_AMBIGUOUS',
+      error: 'The image could not be identified with enough confidence',
+    })
+  }
 
   return response.status(200).json({
     kind: itemCode ? 'item' : 'material',
@@ -130,7 +165,7 @@ export default async function handler(request, response) {
     observedLabel: String(parsed.observed_label ?? 'Unknown item'),
     materialLabel: String(parsed.material_label ?? materialCode),
     condition: normalizeCondition(parsed.condition),
-    parts: normalizeParts(parsed.parts),
+    parts,
     reason: String(parsed.reason ?? 'The image was classified using Google Gemini.'),
   })
 }
@@ -145,13 +180,19 @@ function buildPrompt(catalogue) {
 
 Read visible packaging text when it helps distinguish the object, for example eye-drop bottles, medicine containers, cream tubes, food packaging, or cleaning products. Identify the main object even when it is not centered in the image. Do not require a crop or a guide box.
 
-Choose kind "item" only when the image clearly matches exactly one item in the catalogue and return its exact item_code. Otherwise choose kind "material" and return the broad material. Choose "uncertain" only when no safe material can be inferred.
+First count the separate discardable objects visible in the image. Do not count attached parts of one object, such as a bottle cap or a cup lid, as separate objects.
+
+- Choose kind "item" only when exactly one object is visible and it clearly matches one catalogue item; return its exact item_code.
+- Choose kind "multiple" only when two to eight separate objects are visible AND every one can be matched confidently to an exact catalogue item. In parts, return every visible object exactly once, with its exact item_code. Choose uncertain if there are more than eight objects.
+- Choose kind "material" only when exactly one object is visible, no exact catalogue item is justified, and a safe broad material is clear.
+- Choose kind "uncertain" when the image is unclear, when any of several visible objects cannot be identified exactly, or when you cannot tell whether there are more objects. Never use a guessed item code.
 
 Always return:
 - observed_label: the plain-language name you can actually see or read.
 - material_label: the most specific visible material or material combination.
 - condition: clean, dirty, wet, contains_food_or_liquid, empty, or unknown. Use unknown when the photo cannot support the claim; never assume clean from appearance alone.
-- parts: each separate visible part that could need a different disposal route, such as a lid, pump, straw, cap, paper sleeve, battery, liquid, or food. Do not invent hidden parts. Return [] when there are no clear separate parts.
+- For kind "item" or "material", parts are only clearly visible attached parts that need separate disposal, such as a lid, pump, straw, cap, paper sleeve, battery, liquid, or food. Do not invent hidden parts.
+- For kind "multiple", parts are the recognised objects themselves and every part must have an exact item_code from the catalogue.
 - reason: one concise visual description of what is visible, maximum 14 words. Never mention the catalogue, item code, model confidence, or matching.
 
 Safety rules:
@@ -161,7 +202,7 @@ Safety rules:
 - Batteries, electronics, chemicals, medicine, medical items and sharp objects require special handling or a cautious material result.
 - Cat litter or animal faeces are not ordinary food waste; use the catalogue item when available and prefer a cautious non-recycling result.
 - Eye-drop bottles, medicine bottles, cream tubes and other healthcare packaging must not be treated as ordinary clean plastic when residue or medication may remain.
-- If several unrelated objects are visible, lower confidence and prefer material or uncertain.
+- If several unrelated objects are visible but any one cannot be identified exactly, choose uncertain rather than giving a partial result.
 
 Catalogue:
 ${items}`
@@ -182,8 +223,8 @@ function clampNumber(value) {
 }
 
 function normalizeMaterial(value) {
-  const allowed = new Set(['plastic', 'metal', 'paper_cardboard', 'organic', 'glass', 'electronic_battery', 'landfill', 'mixed_uncertain'])
-  return allowed.has(value) ? value : 'mixed_uncertain'
+  const allowed = new Set(['plastic', 'metal', 'paper_cardboard', 'organic', 'glass', 'electronic_battery', 'landfill'])
+  return allowed.has(value) ? value : undefined
 }
 
 function normalizeCondition(value) {
@@ -191,13 +232,13 @@ function normalizeCondition(value) {
   return allowed.has(value) ? value : 'unknown'
 }
 
-function normalizeParts(value) {
+function normalizeParts(value, allowedCodes) {
   if (!Array.isArray(value)) return []
   return value
     .filter((part) => part && typeof part.name === 'string')
-    .slice(0, 8)
     .map((part) => ({
       name: String(part.name).trim().slice(0, 100),
+      itemCode: allowedCodes.has(part.item_code) ? part.item_code : undefined,
       material: String(part.material ?? 'Unknown material').trim().slice(0, 100),
       condition: normalizeCondition(part.condition),
       confidence: clampNumber(part.confidence),

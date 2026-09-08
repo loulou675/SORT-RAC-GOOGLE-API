@@ -13,7 +13,6 @@ export type BinCode =
   | 'paper_cardboard'
   | 'landfill'
   | 'special_handling'
-  | 'mixed_uncertain'
 
 export type BroadMaterialCode =
   | 'plastic'
@@ -23,7 +22,6 @@ export type BroadMaterialCode =
   | 'glass'
   | 'electronic_battery'
   | 'landfill'
-  | 'mixed_uncertain'
 
 export type MaterialCode =
   | 'pet_plastic'
@@ -70,6 +68,7 @@ export type RecognitionCondition =
 
 export interface RecognizedPart {
   name: string
+  itemCode?: string
   material: string
   condition: RecognitionCondition
   confidence: number

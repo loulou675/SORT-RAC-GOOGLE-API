@@ -207,18 +207,6 @@ const materialFallbackGuidance: Record<BroadMaterialCode, {
     warning: 'This is a destination-level assumption. Use Special Handling instead if the item contains electronics, batteries, chemicals, or sharp hazardous parts.',
     warningVi: 'Đây là kết quả ước đoán theo nhóm. Hãy dùng điểm thu gom đặc biệt nếu vật có điện tử, pin, hóa chất hoặc bộ phận sắc nhọn nguy hiểm.',
   },
-  mixed_uncertain: {
-    name: 'Mixed or uncertain material',
-    nameVi: 'Vật liệu hỗn hợp hoặc chưa chắc chắn',
-    materialCode: 'mixed_material',
-    destinationBinCode: 'mixed_uncertain',
-    why: 'The exact item and a reliable single material could not be identified, so the app is not choosing a disposal bin.',
-    whyVi: 'Không thể xác định chính xác vật thể hoặc một vật liệu đáng tin cậy, vì vậy ứng dụng chưa chọn thùng rác.',
-    steps: ['Check the item label or packaging.', 'Search for the exact item in the app.', 'Ask staff before placing it in a recycling bin.'],
-    stepsVi: ['Kiểm tra nhãn hoặc bao bì của vật.', 'Tìm đúng tên vật trong ứng dụng.', 'Hỏi nhân viên trước khi cho vào thùng tái chế.'],
-    warning: 'Do not guess based only on colour or appearance.',
-    warningVi: 'Không nên đoán chỉ dựa vào màu sắc hoặc hình dáng.',
-  },
 }
 
 export function evaluateMaterialFallback(materialCode: BroadMaterialCode, detectedCondition: RecognitionCondition = 'unknown'): RuleEngineResult {

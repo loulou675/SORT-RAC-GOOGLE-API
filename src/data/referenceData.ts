@@ -599,8 +599,8 @@ export const bins: Bin[] = [
     code: 'landfill',
     nameVi: 'Chất Thải Chôn Lấp',
     nameEn: 'Landfill',
-    colorName: 'Brown',
-    colorHex: '#673c33',
+    colorName: 'Grey Brown',
+    colorHex: '#625d58',
     iconKey: 'landfill',
     descriptionVi: 'Nhựa bẩn, ly giấy, khăn giấy và bao bì nhiễm bẩn.',
     descriptionEn: 'Dirty plastic, paper cups, tissues, napkins and contaminated packaging.',
@@ -617,18 +617,6 @@ export const bins: Bin[] = [
     descriptionVi: 'Vật phẩm cần điểm thu gom được phê duyệt hoặc hướng dẫn từ nhân viên phụ trách.',
     descriptionEn: 'Items that need an approved collection point or guidance from responsible staff.',
     sortOrder: 6,
-    isActive: true,
-  },
-  {
-    code: 'mixed_uncertain',
-    nameVi: 'Hỗn Hợp / Chưa Chắc Chắn',
-    nameEn: 'Mixed or Uncertain',
-    colorName: 'Neutral',
-    colorHex: '#77716a',
-    iconKey: 'help',
-    descriptionVi: 'Không chọn thùng cho đến khi xác định được vật phẩm hoặc vật liệu chính xác hơn.',
-    descriptionEn: 'No bin is selected until the item or its material can be identified more precisely.',
-    sortOrder: 7,
     isActive: true,
   },
 ]
@@ -1438,7 +1426,6 @@ function categoryForBin(destination: BinCode) {
     case 'paper_cardboard': return 'Paper & Cardboard'
     case 'landfill': return 'Landfill'
     case 'special_handling': return 'Special Handling'
-    case 'mixed_uncertain': return 'Mixed or Uncertain'
   }
 }
 
@@ -1555,10 +1542,6 @@ function defaultWhyForBin(destinationBinCode: BinCode, locale: 'vi' | 'en') {
       return isVi
         ? 'Vật phẩm này cần xử lý riêng vì có thể gây rủi ro an toàn hoặc cần điểm thu gom được phê duyệt.'
         : 'This item needs special handling because it may create safety risks or require an approved collection point.'
-    case 'mixed_uncertain':
-      return isVi
-        ? 'Không chọn thùng vì mô hình chỉ xác định được vật liệu hỗn hợp hoặc chưa chắc chắn.'
-        : 'No bin is selected because the material model could only identify a mixed or uncertain material.'
   }
 }
 

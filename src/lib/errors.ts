@@ -85,6 +85,10 @@ export function messageForError(code?: AppErrorCode) {
     return 'The AI ran, but confidence was too low. Move closer to one item or use a clearer photo.'
   }
 
+  if (code === 'MULTIPLE_ITEMS_DETECTED') {
+    return 'Some objects in this image could not be identified. Photograph the items separately or retake a clearer photo.'
+  }
+
   if (code === 'MATERIAL_NOT_RECOGNISED') {
     return 'Neither the exact-item model nor the broad-material model was confident. Please identify the item below.'
   }
@@ -110,6 +114,7 @@ export function messageForErrorVi(code?: AppErrorCode) {
   if (code === 'SCAN_TIMEOUT') return 'Chưa có ảnh quét đủ rõ. Hãy tăng ánh sáng, chụp một vật rõ ràng và dùng nền đơn giản.'
   if (code === 'ITEM_NOT_RECOGNISED') return 'AI đã chạy nhưng ảnh được xếp vào Unknown. Hãy chụp rõ một vật và thử lại.'
   if (code === 'ITEM_AMBIGUOUS') return 'Độ tin cậy của AI còn thấp. Hãy đưa camera gần một vật hoặc dùng ảnh rõ hơn.'
+  if (code === 'MULTIPLE_ITEMS_DETECTED') return 'Một số vật trong ảnh chưa được nhận diện rõ. Hãy chụp từng vật riêng hoặc chụp lại ảnh rõ hơn.'
   if (code === 'MATERIAL_NOT_RECOGNISED') return 'Cả mô hình vật thể và vật liệu đều chưa đủ chắc chắn. Hãy xác định vật ở phần bên dưới.'
   if (code === 'OFFLINE') return 'Thiết bị có vẻ đang ngoại tuyến. Hướng dẫn quét có thể bị giới hạn.'
   return 'Chưa thể nhận diện rõ vật này. Hãy chụp rõ một vật rồi thử lại.'

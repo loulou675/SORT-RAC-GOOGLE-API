@@ -10,6 +10,7 @@ import { EcoTipCard } from './EcoTipCard'
 interface BinPanelProps {
   bin: Bin
   result?: RuleEngineResult
+  multipleResults?: RuleEngineResult[]
   recognitionDetails?: RecognitionDetails
   compact?: boolean
   resultPanel?: boolean
@@ -19,7 +20,7 @@ interface BinPanelProps {
   footer?: ReactNode
 }
 
-export function BinPanel({ bin, result, recognitionDetails, compact = false, resultPanel = false, collapsed = false, onToggleCollapsed, onClose, footer }: BinPanelProps) {
+export function BinPanel({ bin, result, multipleResults, recognitionDetails, compact = false, resultPanel = false, collapsed = false, onToggleCollapsed, onClose, footer }: BinPanelProps) {
   const panelRef = useRef<HTMLElement | null>(null)
   const dragRef = useRef<{ startY: number; startOffset: number; currentOffset: number; lastY: number; lastTime: number; velocity: number } | null>(null)
   const suppressClickRef = useRef(false)
@@ -28,9 +29,11 @@ export function BinPanel({ bin, result, recognitionDetails, compact = false, res
   const className = ['bin-panel', compact ? 'compact' : '', resultPanel ? 'result-panel' : '', collapsed ? 'collapsed' : '', dragging ? 'dragging' : '']
     .filter(Boolean)
     .join(' ')
-  const heading = result?.specialHandling ? 'Hazardous' : bin.nameEn
-  const panelInk = bin.code === 'special_handling' ? '#171411' : '#fffaf4'
-  const featuredTip = getEcoTip(result?.reuseSuggestions[0]?.code)
+  const isMultiple = Boolean(multipleResults?.length)
+  const heading = isMultiple ? 'Multiple objects' : result?.specialHandling ? 'Hazardous' : bin.nameEn
+  const panelColor = isMultiple ? '#4d514d' : bin.colorHex
+  const panelInk = isMultiple || bin.code !== 'special_handling' ? '#fffaf4' : '#171411'
+  const featuredTip = isMultiple ? undefined : getEcoTip(result?.reuseSuggestions[0]?.code)
 
   function collapsedOffset() {
     const panel = panelRef.current
@@ -101,7 +104,7 @@ export function BinPanel({ bin, result, recognitionDetails, compact = false, res
       ref={panelRef}
       className={className}
       style={{
-        '--bin-color': bin.colorHex,
+        '--bin-color': panelColor,
         '--bin-ink': panelInk,
         ...(dragOffset === null ? {} : { '--sheet-drag-y': `${dragOffset}px` }),
       } as CSSProperties}
@@ -137,12 +140,12 @@ export function BinPanel({ bin, result, recognitionDetails, compact = false, res
       <div className="result-panel-body" aria-hidden={resultPanel && collapsed ? true : undefined}>
         <div className="result-heading">
           <p className="eyebrow">
-            {result?.matchLevel === 'material' ? 'Material-based result' : 'This object belongs to'}
+            {isMultiple ? 'All objects recognised' : result?.matchLevel === 'material' ? 'Material-based result' : 'This object belongs to'}
           </p>
           <h2>{heading}</h2>
           <p className="object-name">
-            {result?.item.nameEn ?? 'Object name'}
-            <span className="vi-note">{result?.item.nameVi ?? 'Tên vật thể'}</span>
+            {isMultiple ? 'Sort each object to the bin shown below.' : result?.item.nameEn ?? 'Object name'}
+            <span className="vi-note">{isMultiple ? 'Phân loại từng vật vào thùng được chỉ định bên dưới.' : result?.item.nameVi ?? 'Tên vật thể'}</span>
           </p>
           {result?.specialHandling ? (
             <p className="special-note">Special handling required</p>
@@ -157,6 +160,7 @@ export function BinPanel({ bin, result, recognitionDetails, compact = false, res
                 details={recognitionDetails}
                 fallbackBin={bin}
                 componentActions={result.componentActions}
+                multipleResults={multipleResults}
               />
             ) : null}
             {result.matchLevel === 'material' ? (
@@ -165,10 +169,12 @@ export function BinPanel({ bin, result, recognitionDetails, compact = false, res
                 <p>This guidance comes from a separate broad-material model.<span className="vi-note">Hướng dẫn này dựa trên mô hình nhận diện nhóm vật liệu.</span></p>
               </section>
             ) : null}
-            <section className="why-bin-section" aria-labelledby="why-bin-heading">
-              <h3 id="why-bin-heading">Why this bin?</h3>
-              <p>{result.whyCategory}<span className="vi-note">{result.whyCategoryVi}</span></p>
-            </section>
+            {!isMultiple ? (
+              <section className="why-bin-section" aria-labelledby="why-bin-heading">
+                <h3 id="why-bin-heading">Why this bin?</h3>
+                <p>{result.whyCategory}<span className="vi-note">{result.whyCategoryVi}</span></p>
+              </section>
+            ) : null}
             {result.matchLevel === 'material' && result.warning ? (
               <section className="material-result-warning" aria-label="Important material guidance">
                 <span className="material-warning-icon" aria-hidden="true">
@@ -209,10 +215,12 @@ function RecognitionSummary({
   details,
   fallbackBin,
   componentActions,
+  multipleResults,
 }: {
   details: RecognitionDetails
   fallbackBin: Bin
   componentActions: RuleEngineResult['componentActions']
+  multipleResults?: RuleEngineResult[]
 }) {
   return (
     <section className="recognition-summary" aria-labelledby="recognition-summary-heading">
@@ -237,17 +245,27 @@ function RecognitionSummary({
       </div>
       {details.parts.length ? (
         <div className="recognition-parts">
-          <span>Visible parts</span>
+          <span>{multipleResults?.length ? 'Recognised objects' : 'Visible parts'}</span>
           <ul>
-            {details.parts.map((part, index) => (
-              <li
-                key={`${part.name}-${index}`}
-                style={{ '--part-bin-color': findPartRoute(part.name, componentActions)?.destinationBin.colorHex ?? fallbackBin.colorHex } as CSSProperties}
-              >
-                <strong>{part.name}</strong>
-                <small>{getPartInstruction(part.name, componentActions, fallbackBin)}</small>
-              </li>
-            ))}
+            {details.parts.map((part, index) => {
+              const objectResult = part.itemCode
+                ? multipleResults?.find((candidate) => candidate.item.code === part.itemCode)
+                : undefined
+              const componentRoute = findPartRoute(part.name, componentActions)
+              const destination = objectResult?.destinationBin ?? componentRoute?.destinationBin ?? fallbackBin
+              const instruction = objectResult?.mainInstruction
+                ?? getPartInstruction(part.name, componentActions, fallbackBin)
+
+              return (
+                <li
+                  key={`${part.name}-${index}`}
+                  style={{ '--part-bin-color': destination.colorHex } as CSSProperties}
+                >
+                  <strong>{part.name}</strong>
+                  <small>{instruction}</small>
+                </li>
+              )
+            })}
           </ul>
         </div>
       ) : null}
