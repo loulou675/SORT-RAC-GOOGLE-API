@@ -82,6 +82,17 @@ export function DevStatsPage() {
   const maxPageViews = Math.max(1, ...(stats?.pages.map((page) => page.views) ?? []))
   const maxFrequency = Math.max(1, ...(stats?.visitFrequency.map((item) => item.visitors) ?? []))
   const totalDeviceVisitors = stats?.devices.reduce((sum, device) => sum + device.visitors, 0) ?? 0
+  const retentionDaily = useMemo(() => stats?.daily.slice(-7) ?? [], [stats])
+  const retentionTotals = useMemo(
+    () => retentionDaily.reduce(
+      (totals, day) => ({
+        newVisitors: totals.newVisitors + day.newVisitors,
+        returningVisitors: totals.returningVisitors + day.returningVisitors,
+      }),
+      { newVisitors: 0, returningVisitors: 0 },
+    ),
+    [retentionDaily],
+  )
   const hasData = Boolean(stats && stats.totals.sessions > 0)
 
   return (
@@ -168,13 +179,13 @@ export function DevStatsPage() {
             </article>
 
             <article className="devstats-panel devstats-retention-panel">
-              <PanelHeader index="02" title="New vs. returning" meta="Daily unique browsers" />
+              <PanelHeader index="02" title="New vs. returning" meta="Last 7 days" />
               <div className="devstats-retention-summary">
-                <span><strong>{formatCompact(stats.totals.newVisitors)}</strong> new</span>
-                <span><strong>{formatCompact(stats.totals.returningVisitors)}</strong> returning</span>
+                <span><strong>{formatCompact(retentionTotals.newVisitors)}</strong> new</span>
+                <span><strong>{formatCompact(retentionTotals.returningVisitors)}</strong> returning</span>
               </div>
               <div className="devstats-retention-list" role="img" aria-label="Daily new and returning visitors">
-                {stats.daily.map((day) => {
+                {retentionDaily.map((day) => {
                   const total = Math.max(1, day.newVisitors + day.returningVisitors)
                   return (
                     <div key={day.date} title={`${formatDay(day.date, range)}: ${day.newVisitors} new, ${day.returningVisitors} returning`}>
