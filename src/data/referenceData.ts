@@ -609,8 +609,8 @@ export const bins: Bin[] = [
   },
   {
     code: 'special_handling',
-    nameVi: 'Không thuộc 5 thùng',
-    nameEn: 'No general bin',
+    nameVi: 'Nguy hại',
+    nameEn: 'Hazardous',
     colorName: 'Yellow',
     colorHex: '#f4d68c',
     iconKey: 'alert',
