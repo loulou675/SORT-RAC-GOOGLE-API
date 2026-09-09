@@ -39,9 +39,6 @@ export function AppShell() {
     <div className="app-shell">
       <main className="main-surface">
         <header className="top-bar">
-          <button type="button" className="brand-wordmark" aria-label="SỌRT RÁC home" onClick={() => navigate('/')}>
-            SỌRT RÁC
-          </button>
           <form className="search-form" role="search" onSubmit={submitSearch}>
             <button type="submit" className="search-submit" aria-label="Search">
               <Search size={16} aria-hidden="true" />
