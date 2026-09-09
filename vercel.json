@@ -1,4 +1,14 @@
 {
+  "rewrites": [
+    {
+      "source": "/devstats",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/devstats/",
+      "destination": "/index.html"
+    }
+  ],
   "functions": {
     "api/analyze-image.js": {
       "maxDuration": 60,
