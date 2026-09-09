@@ -1,9 +1,15 @@
 import {
   Activity,
+  ArrowDownRight,
   ArrowUpRight,
+  CircleCheck,
+  CircleX,
   Clock3,
-  MousePointerClick,
+  Gauge,
+  MessageSquareText,
   RefreshCw,
+  Repeat2,
+  ScanLine,
   Smartphone,
   UsersRound,
 } from 'lucide-react'
@@ -25,6 +31,10 @@ function appHomeHref() {
 
 function formatCompact(value: number) {
   return new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(value)
+}
+
+function formatPercent(value: number) {
+  return `${new Intl.NumberFormat('en', { maximumFractionDigits: 1 }).format(value)}%`
 }
 
 function formatDay(value: string, range: StatsRange) {
@@ -70,7 +80,8 @@ export function DevStatsPage() {
   )
   const maxFeatureUses = Math.max(1, ...(stats?.features.map((feature) => feature.uses) ?? []))
   const maxPageViews = Math.max(1, ...(stats?.pages.map((page) => page.views) ?? []))
-  const totalDeviceSessions = stats?.devices.reduce((sum, device) => sum + device.sessions, 0) ?? 0
+  const maxFrequency = Math.max(1, ...(stats?.visitFrequency.map((item) => item.visitors) ?? []))
+  const totalDeviceVisitors = stats?.devices.reduce((sum, device) => sum + device.visitors, 0) ?? 0
   const hasData = Boolean(stats && stats.totals.sessions > 0)
 
   return (
@@ -114,7 +125,7 @@ export function DevStatsPage() {
           <p className="devstats-kicker">Connection needed</p>
           <h2>The statistics endpoint is not ready.</h2>
           <p>{error}</p>
-          <p>Apply Supabase migration 005 to enable anonymous collection and aggregate reads.</p>
+          <p>Apply Supabase migrations 005 and 006 to enable anonymous collection and engagement reporting.</p>
           <button type="button" onClick={loadStats}>Try again</button>
         </section>
       ) : null}
@@ -132,8 +143,10 @@ export function DevStatsPage() {
           <section className="devstats-kpi-grid" aria-label="Key metrics">
             <MetricCard icon={<UsersRound />} label="Visitors" value={formatCompact(stats.totals.visitors)} note={`Unique browsers / ${range} days`} tone="orange" />
             <MetricCard icon={<Activity />} label="Sessions" value={formatCompact(stats.totals.sessions)} note="Tracked site visits" tone="blue" />
-            <MetricCard icon={<Clock3 />} label="Avg. active time" value={formatDuration(stats.totals.avgActiveSeconds)} note="Visible, engaged time" tone="yellow" />
-            <MetricCard icon={<MousePointerClick />} label="Feature actions" value={formatCompact(stats.totals.featureUses)} note="Scans, uploads, feedback + more" tone="red" />
+            <MetricCard icon={<Repeat2 />} label="Returning visitors" value={formatCompact(stats.totals.returningVisitors)} note="Browsers seen before this period" tone="yellow" />
+            <MetricCard icon={<ArrowDownRight />} label="Bounce rate" value={formatPercent(stats.totals.bounceRate)} note="1 page, under 10s, no action" tone="red" />
+            <MetricCard icon={<Gauge />} label="Repeat visit rate" value={formatPercent(stats.totals.repeatVisitRate)} note="2+ sessions in this period" tone="blue" />
+            <MetricCard icon={<Clock3 />} label="Avg. active time" value={formatDuration(stats.totals.avgActiveSeconds)} note="Visible, engaged time" tone="orange" />
           </section>
 
           <section className="devstats-dashboard-grid">
@@ -154,15 +167,72 @@ export function DevStatsPage() {
               </div>
             </article>
 
+            <article className="devstats-panel devstats-retention-panel">
+              <PanelHeader index="02" title="New vs. returning" meta="Daily unique browsers" />
+              <div className="devstats-retention-summary">
+                <span><strong>{formatCompact(stats.totals.newVisitors)}</strong> new</span>
+                <span><strong>{formatCompact(stats.totals.returningVisitors)}</strong> returning</span>
+              </div>
+              <div className="devstats-retention-list" role="img" aria-label="Daily new and returning visitors">
+                {stats.daily.map((day) => {
+                  const total = Math.max(1, day.newVisitors + day.returningVisitors)
+                  return (
+                    <div key={day.date} title={`${formatDay(day.date, range)}: ${day.newVisitors} new, ${day.returningVisitors} returning`}>
+                      <small>{formatDay(day.date, range)}</small>
+                      <span>
+                        <i className="new" style={{ width: `${(day.newVisitors / total) * 100}%` }} />
+                        <i className="returning" style={{ width: `${(day.returningVisitors / total) * 100}%` }} />
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+              <p className="devstats-panel-note">Returning means the anonymous browser first visited before the current reporting period.</p>
+            </article>
+
+            <article className="devstats-panel devstats-engagement-panel">
+              <PanelHeader index="03" title="Engagement quality" meta="Session-level view" />
+              <div className="devstats-engagement-values">
+                <div><span>Engaged sessions</span><strong>{formatCompact(stats.totals.engagedSessions)}</strong><small>{formatPercent(stats.totals.engagementRate)} of sessions</small></div>
+                <div><span>Sessions / visitor</span><strong>{stats.totals.avgSessionsPerVisitor.toFixed(2)}x</strong><small>{formatCompact(stats.totals.repeatVisitors)} repeat browsers</small></div>
+                <div><span>Feature actions</span><strong>{formatCompact(stats.totals.featureUses)}</strong><small>Scans, uploads, feedback + more</small></div>
+              </div>
+              <p className="devstats-panel-note">A bounce is one page view under 10 seconds with no interaction other than the automatic page load.</p>
+            </article>
+
+            <article className="devstats-panel devstats-scan-panel">
+              <PanelHeader index="04" title="Scan health" meta="Recognition events" />
+              <div className="devstats-scan-grid">
+                <div><ScanLine size={17} aria-hidden="true" /><span>Scan starts</span><strong>{formatCompact(stats.scan.scanStarts)}</strong></div>
+                <div><CircleCheck size={17} aria-hidden="true" /><span>Completed</span><strong>{formatCompact(stats.scan.scanSuccesses)}</strong></div>
+                <div><CircleX size={17} aria-hidden="true" /><span>Errors</span><strong>{formatCompact(stats.scan.scanErrors)}</strong></div>
+                <div><MessageSquareText size={17} aria-hidden="true" /><span>Feedback</span><strong>{formatCompact(stats.scan.feedbackSubmissions)}</strong></div>
+              </div>
+              <div className="devstats-success-rate"><span>Completion rate</span><strong>{formatPercent(stats.scan.scanSuccessRate)}</strong></div>
+            </article>
+
+            <article className="devstats-panel devstats-frequency-panel">
+              <PanelHeader index="05" title="Visit frequency" meta="Sessions per browser" />
+              <div className="devstats-frequency-list">
+                {stats.visitFrequency.map((item) => (
+                  <div key={item.bucket}>
+                    <span>{item.bucket}</span>
+                    <i><b style={{ width: `${(item.visitors / maxFrequency) * 100}%` }} /></i>
+                    <strong>{formatCompact(item.visitors)}</strong>
+                  </div>
+                ))}
+              </div>
+            </article>
+
             <article className="devstats-panel">
-              <PanelHeader index="02" title="Top features" meta="By action count" />
+              <PanelHeader index="06" title="Top features" meta="By action count" />
               <div className="devstats-ranking">
                 {stats.features.map((feature, index) => (
-                  <div className="devstats-rank-row" key={feature.code}>
+                  <div className="devstats-rank-row" key={feature.label}>
                     <span className="devstats-rank-index">{String(index + 1).padStart(2, '0')}</span>
                     <div>
                       <div className="devstats-rank-label">
-                        <strong>{humanizeFeatureCode(feature.code)}</strong>
+                        <strong>{humanizeFeatureCode(feature.label)}</strong>
                         <span>{formatCompact(feature.uses)}</span>
                       </div>
                       <span className="devstats-progress"><i style={{ width: `${(feature.uses / maxFeatureUses) * 100}%` }} /></span>
@@ -173,7 +243,7 @@ export function DevStatsPage() {
             </article>
 
             <article className="devstats-panel">
-              <PanelHeader index="03" title="Top pages" meta="By page views" />
+              <PanelHeader index="07" title="Top pages" meta="By page views" />
               <div className="devstats-page-list">
                 {stats.pages.map((page) => (
                   <div key={page.path}>
@@ -186,14 +256,14 @@ export function DevStatsPage() {
             </article>
 
             <article className="devstats-panel">
-              <PanelHeader index="04" title="Device mix" meta="By sessions" />
+              <PanelHeader index="08" title="Device mix" meta="By unique browser" />
               <div className="devstats-device-list">
                 {stats.devices.map((device) => {
-                  const percentage = totalDeviceSessions ? Math.round((device.sessions / totalDeviceSessions) * 100) : 0
+                  const percentage = totalDeviceVisitors ? Math.round((device.visitors / totalDeviceVisitors) * 100) : 0
                   return (
-                    <div key={device.category}>
+                    <div key={device.label}>
                       <span className="devstats-device-icon"><Smartphone size={18} aria-hidden="true" /></span>
-                      <span><strong>{humanizeFeatureCode(device.category)}</strong><small>{formatCompact(device.sessions)} sessions</small></span>
+                      <span><strong>{humanizeFeatureCode(device.label)}</strong><small>{formatCompact(device.visitors)} visitors</small></span>
                       <b>{percentage}%</b>
                     </div>
                   )
@@ -202,12 +272,12 @@ export function DevStatsPage() {
             </article>
 
             <article className="devstats-panel devstats-sources-panel">
-              <PanelHeader index="05" title="Traffic sources" meta="Referral host only" />
+              <PanelHeader index="09" title="Traffic sources" meta="Referral host only" />
               <div className="devstats-source-list">
                 {stats.sources.map((source) => (
-                  <div key={source.host}>
-                    <span>{source.host}</span>
-                    <strong>{formatCompact(source.sessions)}</strong>
+                  <div key={source.label}>
+                    <span>{source.label}</span>
+                    <strong>{formatCompact(source.visitors)}</strong>
                   </div>
                 ))}
               </div>
@@ -216,7 +286,7 @@ export function DevStatsPage() {
 
           <footer className="devstats-footer">
             <p>Last updated {new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(stats.generatedAt))}</p>
-            <p>Daily totals use Vietnam time (UTC+7). No names, images, precise device fingerprints, or raw visitor records are shown.</p>
+            <p>Daily totals use Vietnam time (UTC+7). A local anonymous browser ID only supports return-rate estimates; no names, images, locations, or raw visitor records are shown.</p>
           </footer>
         </>
       ) : null}

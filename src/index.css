@@ -161,7 +161,7 @@
 
 .devstats-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   border-top: 1px solid rgba(23, 20, 17, 0.28);
   border-left: 1px solid rgba(23, 20, 17, 0.28);
 }
@@ -328,6 +328,179 @@
   white-space: nowrap;
   opacity: 0.6;
 }
+
+.devstats-retention-panel,
+.devstats-engagement-panel,
+.devstats-scan-panel,
+.devstats-frequency-panel {
+  min-height: 18.5rem;
+}
+
+.devstats-retention-summary {
+  display: flex;
+  gap: 1.2rem;
+  padding: 1.15rem 0 0.75rem;
+  font-size: 0.69rem;
+  font-weight: 700;
+}
+
+.devstats-retention-summary span::before {
+  display: inline-block;
+  width: 0.48rem;
+  height: 0.48rem;
+  margin-right: 0.35rem;
+  content: "";
+  background: var(--tangerine);
+}
+
+.devstats-retention-summary span + span::before {
+  background: var(--sea);
+}
+
+.devstats-retention-list {
+  display: grid;
+  gap: 0.48rem;
+}
+
+.devstats-retention-list > div {
+  display: grid;
+  grid-template-columns: 3.9rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.devstats-retention-list small {
+  overflow: hidden;
+  font-size: 0.58rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.64;
+}
+
+.devstats-retention-list > div > span {
+  display: flex;
+  height: 0.62rem;
+  overflow: hidden;
+  background: rgba(23, 20, 17, 0.09);
+}
+
+.devstats-retention-list i {
+  display: block;
+  min-width: 0;
+  transition: width 180ms ease;
+}
+
+.devstats-retention-list i.new { background: var(--tangerine); }
+.devstats-retention-list i.returning { background: var(--sea); }
+
+.devstats-panel-note {
+  margin: 1rem 0 0;
+  color: #6d655d;
+  font-size: 0.63rem;
+  line-height: 1.45;
+}
+
+.devstats-engagement-values {
+  display: grid;
+  gap: 0;
+  padding-top: 0.55rem;
+}
+
+.devstats-engagement-values > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.12rem 1rem;
+  align-items: baseline;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(23, 20, 17, 0.11);
+}
+
+.devstats-engagement-values span,
+.devstats-engagement-values small {
+  color: #70675f;
+  font-size: 0.66rem;
+}
+
+.devstats-engagement-values strong {
+  grid-row: span 2;
+  grid-column: 2;
+  font-size: 1.35rem;
+  letter-spacing: -0.05em;
+}
+
+.devstats-scan-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid rgba(23, 20, 17, 0.11);
+  border-left: 1px solid rgba(23, 20, 17, 0.11);
+}
+
+.devstats-scan-grid > div {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.35rem 0.5rem;
+  min-width: 0;
+  padding: 0.85rem;
+  border-right: 1px solid rgba(23, 20, 17, 0.11);
+  border-bottom: 1px solid rgba(23, 20, 17, 0.11);
+}
+
+.devstats-scan-grid svg { color: #8a4d10; }
+
+.devstats-scan-grid span {
+  overflow: hidden;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.devstats-scan-grid strong {
+  grid-column: 1 / -1;
+  font-size: 1.35rem;
+  letter-spacing: -0.05em;
+}
+
+.devstats-success-rate {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(23, 20, 17, 0.15);
+  font-size: 0.7rem;
+}
+
+.devstats-success-rate strong { color: #387450; }
+
+.devstats-frequency-list {
+  display: grid;
+  gap: 1rem;
+  padding-top: 1.45rem;
+}
+
+.devstats-frequency-list > div {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr) 2rem;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: 0.68rem;
+}
+
+.devstats-frequency-list > div > i {
+  display: block;
+  height: 0.48rem;
+  overflow: hidden;
+  background: rgba(23, 20, 17, 0.1);
+}
+
+.devstats-frequency-list > div > i > b {
+  display: block;
+  height: 100%;
+  min-width: 0.22rem;
+  background: var(--ketchup);
+}
+
+.devstats-frequency-list strong { text-align: right; }
 
 .devstats-ranking {
   display: grid;
@@ -685,6 +858,10 @@
 
   .devstats-source-list > div {
     border-right: 0;
+  }
+
+  .devstats-retention-list > div:nth-child(n + 12) {
+    display: none;
   }
 
   .devstats-footer {
