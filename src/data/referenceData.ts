@@ -609,13 +609,13 @@ export const bins: Bin[] = [
   },
   {
     code: 'special_handling',
-    nameVi: 'Xử Lý Riêng',
-    nameEn: 'Hazardous',
+    nameVi: 'Không thuộc 5 thùng',
+    nameEn: 'No general bin',
     colorName: 'Yellow',
     colorHex: '#f4d68c',
     iconKey: 'alert',
-    descriptionVi: 'Vật phẩm cần điểm thu gom được phê duyệt hoặc hướng dẫn từ nhân viên phụ trách.',
-    descriptionEn: 'Items that need an approved collection point or guidance from responsible staff.',
+    descriptionVi: 'Vật phẩm không được đưa vào 5 thùng thông thường; hãy dùng điểm e-waste hoặc hỏi nhân viên.',
+    descriptionEn: 'Items that do not belong in the five general bins; use e-waste collection or ask staff.',
     sortOrder: 6,
     isActive: true,
   },
@@ -690,17 +690,17 @@ export const wasteItems: WasteItem[] = [
     'lọ mỹ phẩm',
     'tuýp mỹ phẩm',
   ], ['cosmetic container', 'cosmetic packaging', 'cosmetic jar', 'cosmetic tube', 'makeup container']),
-  item('eye_drop_container', 'Lọ thuốc nhỏ mắt', 'Eye-drop container', 'hazardous', 'container', 'Special Handling', true, true, [
+  item('eye_drop_container', 'Lọ thuốc nhỏ mắt', 'Eye-drop container', 'hazardous', 'container', 'No general bin', true, true, [
     'lọ thuốc nhỏ mắt',
     'chai thuốc nhỏ mắt',
     'vỏ thuốc nhỏ mắt',
   ], ['eye-drop bottle', 'eye drop container', 'ophthalmic bottle']),
-  item('topical_cream_container', 'Tuýp kem bôi', 'Topical cream container', 'hazardous', 'container', 'Special Handling', true, true, [
+  item('topical_cream_container', 'Tuýp kem bôi', 'Topical cream container', 'mixed_material', 'container', 'Landfill', false, false, [
     'tuýp kem bôi',
     'tuýp thuốc bôi',
     'hộp kem bôi',
   ], ['cream tube', 'topical cream tube', 'ointment tube']),
-  item('medicine_bottle', 'Lọ thuốc', 'Medicine bottle', 'hazardous', 'container', 'Special Handling', true, true, [
+  item('medicine_bottle', 'Lọ thuốc', 'Medicine bottle', 'hazardous', 'container', 'No general bin', true, true, [
     'lọ thuốc',
     'chai thuốc',
     'vỏ lọ thuốc',
@@ -928,45 +928,45 @@ export const wasteItems: WasteItem[] = [
     'đồ sứ',
     'bát đĩa sứ',
   ], ['ceramic', 'ceramic item', 'pottery']),
-  item('battery', 'Pin', 'Battery', 'hazardous', 'battery', 'Special Handling', true, true, [
+  item('battery', 'Pin', 'Battery', 'hazardous', 'battery', 'No general bin', true, true, [
     'pin',
     'pin tiểu',
     'pin sạc',
   ], ['battery', 'aa battery', 'rechargeable battery']),
-  item('mobile_phone', 'Điện thoại di động', 'Mobile phone', 'electronic', 'device', 'Special Handling', true, true, [
+  item('mobile_phone', 'Điện thoại di động', 'Mobile phone', 'electronic', 'device', 'No general bin', true, true, [
     'điện thoại',
     'điện thoại cũ',
   ], ['mobile phone', 'phone', 'smartphone']),
-  item('electronic_cable', 'Dây cáp điện tử', 'Electronic cable', 'electronic', 'cable', 'Special Handling', true, true, [
+  item('electronic_cable', 'Dây cáp điện tử', 'Electronic cable', 'electronic', 'cable', 'No general bin', true, true, [
     'dây cáp',
     'cáp sạc',
     'dây điện tử',
   ], ['electronic cable', 'charging cable', 'usb cable']),
-  item('broken_glass', 'Thủy tinh vỡ', 'Broken glass', 'glass', 'glass', 'Special Handling', true, true, [
+  item('broken_glass', 'Thủy tinh vỡ', 'Broken glass', 'glass', 'glass', 'No general bin', true, true, [
     'kính vỡ',
     'thủy tinh vỡ',
     'mảnh chai vỡ',
   ], ['broken glass', 'glass shard', 'shattered glass']),
-  item('light_bulb', 'Bóng đèn', 'Light bulb', 'hazardous', 'bulb', 'Special Handling', true, true, [
+  item('light_bulb', 'Bóng đèn', 'Light bulb', 'hazardous', 'bulb', 'No general bin', true, true, [
     'bóng đèn',
     'đèn huỳnh quang',
   ], ['light bulb', 'fluorescent bulb', 'lamp bulb']),
-  item('chemical_container', 'Bao bì hóa chất', 'Chemical container', 'hazardous', 'container', 'Special Handling', true, true, [
+  item('chemical_container', 'Bao bì hóa chất', 'Chemical container', 'hazardous', 'container', 'No general bin', true, true, [
     'chai hóa chất',
     'hộp hóa chất',
     'bao bì hóa chất',
   ], ['chemical container', 'chemical bottle', 'hazard container']),
-  item('paint_container', 'Thùng sơn', 'Paint container', 'hazardous', 'container', 'Special Handling', true, true, [
+  item('paint_container', 'Thùng sơn', 'Paint container', 'hazardous', 'container', 'No general bin', true, true, [
     'thùng sơn',
     'lon sơn',
     'hộp sơn',
   ], ['paint container', 'paint can', 'paint tin']),
-  item('pesticide_container', 'Bao bì thuốc trừ sâu', 'Pesticide container', 'hazardous', 'container', 'Special Handling', true, true, [
+  item('pesticide_container', 'Bao bì thuốc trừ sâu', 'Pesticide container', 'hazardous', 'container', 'No general bin', true, true, [
     'chai thuốc trừ sâu',
     'bao bì thuốc bảo vệ thực vật',
     'hộp thuốc trừ sâu',
   ], ['pesticide container', 'pesticide bottle', 'insecticide container']),
-  item('aerosol_can', 'Bình xịt', 'Aerosol can', 'hazardous', 'can', 'Special Handling', true, true, [
+  item('aerosol_can', 'Bình xịt', 'Aerosol can', 'hazardous', 'can', 'No general bin', true, true, [
     'bình xịt',
     'lon xịt',
   ], ['aerosol can', 'spray can', 'pressurised can']),
@@ -976,21 +976,21 @@ export const wasteItems: WasteItem[] = [
     'gói thuốc rỗng',
     'vỏ thuốc rỗng',
   ], ['medicine blister pack', 'pill blister', 'tablet pack', 'empty medicine sachet', 'empty medicine packaging']),
-  item('loose_medicine', 'Thuốc không sử dụng', 'Unused medicine', 'hazardous', 'small_waste', 'Special Handling', true, true, [
+  item('loose_medicine', 'Thuốc không sử dụng', 'Unused medicine', 'hazardous', 'small_waste', 'No general bin', true, true, [
     'thuốc thừa',
     'thuốc hết hạn',
     'viên thuốc',
   ], ['unused medicine', 'expired medicine', 'loose pills']),
-  item('used_syringe', 'Kim tiêm đã sử dụng', 'Used syringe', 'hazardous', 'small_waste', 'Special Handling', true, true, [
+  item('used_syringe', 'Kim tiêm đã sử dụng', 'Used syringe', 'hazardous', 'small_waste', 'No general bin', true, true, [
     'kim tiêm',
     'ống tiêm',
     'bơm kim tiêm',
   ], ['used syringe', 'syringe', 'medical needle']),
-  item('power_bank', 'Pin sạc dự phòng', 'Power bank', 'electronic', 'device', 'Special Handling', true, true, [
+  item('power_bank', 'Pin sạc dự phòng', 'Power bank', 'electronic', 'device', 'No general bin', true, true, [
     'sạc dự phòng',
     'pin dự phòng',
   ], ['power bank', 'portable charger', 'battery pack']),
-  item('small_e_waste', 'Rác điện tử nhỏ', 'Small e-waste', 'electronic', 'device', 'Special Handling', true, true, [
+  item('small_e_waste', 'Rác điện tử nhỏ', 'Small e-waste', 'electronic', 'device', 'No general bin', true, true, [
     'rác điện tử',
     'thiết bị điện tử cũ',
     'đồ điện tử hỏng',
@@ -1328,6 +1328,14 @@ export const disposalRules: DisposalRule[] = [
     warningVi: 'Nếu còn thuốc hoặc thuốc đã hết hạn, không bỏ vào Landfill; hãy dùng điểm thu gom thuốc phù hợp.',
     warningEn: 'If medicine remains or has expired, do not use Landfill; use an appropriate medicine collection point.',
   }),
+  rule('topical_cream_container', 'default', 'landfill', {
+    vi: 'Đậy kín tuýp kem bôi rồi đặt vào Chất Thải Chôn Lấp.',
+    en: 'Close the topical cream tube and place it in Landfill.',
+    stepsVi: ['Đậy kín tuýp.', 'Không đổ phần kem còn lại xuống bồn rửa.', 'Đặt vào Chất Thải Chôn Lấp.'],
+    stepsEn: ['Close the tube.', 'Do not pour remaining cream down a drain.', 'Place it in Landfill.'],
+    warningVi: 'Nếu tuýp còn thuốc, hóa chất hoặc là sản phẩm hết hạn cần xử lý đặc biệt, hãy hỏi nhân viên thay vì bỏ vào thùng thường.',
+    warningEn: 'If the tube contains medicine, chemicals, or expired product requiring controlled disposal, ask staff instead of using a general bin.',
+  }),
   ...defaultRules(
     ['food_waste', 'leftover_rice', 'leftover_noodles', 'fruit_peel', 'vegetable_scraps', 'egg_shell', 'coffee_grounds', 'tea_bag', 'leftover_drink', 'meat_scraps', 'fish_scraps', 'poultry_bones', 'animal_bones', 'seafood_shells', 'bread_waste', 'cake_waste', 'dairy_food_waste', 'spoiled_food', 'fruit_core', 'vegetable_stems', 'tea_leaves', 'coffee_filter', 'garden_leaves', 'cut_flowers', 'grass_clippings', 'pet_food_waste'],
     'organic',
@@ -1340,19 +1348,19 @@ export const disposalRules: DisposalRule[] = [
       warningEn: 'Any packaging should be sorted separately.',
     },
   ),
-  ...defaultRules(['battery', 'mobile_phone', 'electronic_cable', 'broken_glass', 'light_bulb', 'chemical_container', 'paint_container', 'pesticide_container', 'aerosol_can', 'loose_medicine', 'used_syringe', 'power_bank', 'small_e_waste', 'eye_drop_container', 'topical_cream_container', 'medicine_bottle'], 'special_handling', {
-    vi: 'Vật phẩm này cần xử lý riêng.',
-    en: 'Special handling is required for this item.',
-    stepsVi: ['Không bỏ vào năm thùng rác thông thường.', 'Dùng điểm thu gom được phê duyệt hoặc hỏi nhân viên phụ trách.'],
-    stepsEn: ['Do not place it in the five general waste bins.', 'Use an approved collection point or follow instructions from responsible staff.'],
+  ...defaultRules(['battery', 'mobile_phone', 'electronic_cable', 'broken_glass', 'light_bulb', 'chemical_container', 'paint_container', 'pesticide_container', 'aerosol_can', 'loose_medicine', 'used_syringe', 'power_bank', 'small_e_waste', 'eye_drop_container', 'medicine_bottle'], 'special_handling', {
+    vi: 'Vật phẩm này không thuộc 5 thùng rác thông thường.',
+    en: 'This item does not belong in the five general bins.',
+    stepsVi: ['Không bỏ vào 5 thùng rác thông thường.', 'Dùng điểm thu gom e-waste hoặc được phê duyệt, hoặc hỏi nhân viên phụ trách.'],
+    stepsEn: ['Do not place it in the five general bins.', 'Use e-waste or another approved collection point, or ask staff.'],
     warningVi: 'Không cố tháo, đập vỡ hoặc xử lý sâu vật phẩm này.',
     warningEn: 'Do not dismantle, crush or attempt detailed handling of this item.',
   }),
   ...defaultRules(['laptop', 'tablet', 'keyboard', 'computer_mouse', 'headphones', 'charger', 'power_adapter', 'extension_cord', 'remote_control', 'digital_camera', 'printer', 'printer_cartridge', 'ink_cartridge', 'smoke_detector', 'fire_extinguisher', 'propane_canister', 'nail_polish', 'nail_polish_remover', 'mercury_thermometer', 'fluorescent_tube', 'bleach_container', 'drain_cleaner_container', 'paint_thinner_container', 'e_cigarette'], 'special_handling', {
-    vi: 'Vật phẩm này cần xử lý riêng.',
-    en: 'Special handling is required for this item.',
-    stepsVi: ['Không bỏ vào năm thùng rác thông thường.', 'Dùng điểm thu gom được phê duyệt hoặc hỏi nhân viên phụ trách.'],
-    stepsEn: ['Do not place it in the five general waste bins.', 'Use an approved collection point or follow instructions from responsible staff.'],
+    vi: 'Vật phẩm này không thuộc 5 thùng rác thông thường.',
+    en: 'This item does not belong in the five general bins.',
+    stepsVi: ['Không bỏ vào 5 thùng rác thông thường.', 'Đưa tới điểm thu gom e-waste hoặc hỏi nhân viên phụ trách.'],
+    stepsEn: ['Do not place it in the five general bins.', 'Take it to e-waste collection or ask staff.'],
     warningVi: 'Không cố tháo, đập vỡ hoặc xử lý sâu vật phẩm này.',
     warningEn: 'Do not dismantle, crush or attempt detailed handling of this item.',
   }),
@@ -1425,7 +1433,7 @@ function categoryForBin(destination: BinCode) {
     case 'clean_plastic': return 'Clean Plastic'
     case 'paper_cardboard': return 'Paper & Cardboard'
     case 'landfill': return 'Landfill'
-    case 'special_handling': return 'Special Handling'
+    case 'special_handling': return 'No general bin'
   }
 }
 
@@ -1540,8 +1548,8 @@ function defaultWhyForBin(destinationBinCode: BinCode, locale: 'vi' | 'en') {
         : 'This item belongs in Landfill because lining, contamination, or mixed materials make it unsuitable for the recycling streams at this station.'
     case 'special_handling':
       return isVi
-        ? 'Vật phẩm này cần xử lý riêng vì có thể gây rủi ro an toàn hoặc cần điểm thu gom được phê duyệt.'
-        : 'This item needs special handling because it may create safety risks or require an approved collection point.'
+        ? 'Vật phẩm này không có luồng trong 5 thùng thông thường; hãy dùng điểm e-waste hoặc hỏi nhân viên.'
+        : 'This item has no stream in the five general bins; use e-waste collection or ask staff.'
   }
 }
 

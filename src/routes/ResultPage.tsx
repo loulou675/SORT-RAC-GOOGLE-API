@@ -56,8 +56,8 @@ export function ResultPage() {
           <span className="headline-line italic">Know where it goes</span>
         </h1>
         <p>
-          {result.specialHandling ? 'This item should not be placed in the five general waste bins. Please use an approved collection point or follow instructions from responsible staff.' : result.mainInstruction}
-          <span className="vi-note">{result.specialHandling ? 'Không cho vật này vào năm thùng rác thông thường. Hãy dùng điểm thu gom phù hợp hoặc làm theo hướng dẫn của nhân viên phụ trách.' : result.mainInstructionVi}</span>
+          {result.specialHandling ? 'This item does not belong in the five general bins. Use e-waste or another approved collection point, or ask staff.' : result.mainInstruction}
+          <span className="vi-note">{result.specialHandling ? 'Vật này không thuộc 5 thùng thông thường. Hãy dùng điểm thu gom e-waste hoặc điểm phù hợp khác, hoặc hỏi nhân viên.' : result.mainInstructionVi}</span>
         </p>
         <p className="local-note">This guidance applies to the selected waste station.<span className="vi-note">Hướng dẫn này áp dụng cho điểm thu gom đã chọn.</span></p>
 

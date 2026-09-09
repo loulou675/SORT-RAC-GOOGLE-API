@@ -30,7 +30,7 @@ export function BinPanel({ bin, result, multipleResults, recognitionDetails, com
     .filter(Boolean)
     .join(' ')
   const isMultiple = Boolean(multipleResults?.length)
-  const heading = isMultiple ? 'Multiple objects' : result?.specialHandling ? 'Hazardous' : bin.nameEn
+  const heading = isMultiple ? 'Multiple objects' : bin.nameEn
   const panelColor = isMultiple ? '#4d514d' : bin.colorHex
   const panelInk = isMultiple || bin.code !== 'special_handling' ? '#fffaf4' : '#171411'
   const featuredTip = isMultiple ? undefined : getEcoTip(result?.reuseSuggestions[0]?.code)
@@ -148,7 +148,7 @@ export function BinPanel({ bin, result, multipleResults, recognitionDetails, com
             <span className="vi-note">{isMultiple ? 'Phân loại từng vật vào thùng được chỉ định bên dưới.' : result?.item.nameVi ?? 'Tên vật thể'}</span>
           </p>
           {result?.specialHandling ? (
-            <p className="special-note">Special handling required</p>
+            <p className="special-note">No general bin - use collection point</p>
           ) : null}
           {!resultPanel ? <p className="bin-color">{bin.colorName} Bin</p> : null}
         </div>

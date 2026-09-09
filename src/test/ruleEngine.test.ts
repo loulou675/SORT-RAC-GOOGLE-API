@@ -176,10 +176,17 @@ describe('rule engine', () => {
     expect(result.destinationBin.code).toBe('landfill')
   })
 
-  it('routes healthcare packaging to Special Handling', () => {
+  it('keeps controlled healthcare items out of the five bins', () => {
     expect(evaluate('eye_drop_container').destinationBin.code).toBe('special_handling')
-    expect(evaluate('topical_cream_container').destinationBin.code).toBe('special_handling')
     expect(evaluate('medicine_bottle').destinationBin.code).toBe('special_handling')
+  })
+
+  it('routes an ordinary topical cream tube to Landfill with a caution', () => {
+    const result = evaluate('topical_cream_container')
+
+    expect(result.destinationBin.code).toBe('landfill')
+    expect(result.specialHandling).toBe(false)
+    expect(result.warning).toContain('medicine')
   })
 
   it('routes a glass jar to Bottle & Can when it is empty', () => {
@@ -222,7 +229,7 @@ describe('rule engine', () => {
     const result = evaluate('chemical_container')
 
     expect(result.specialHandling).toBe(true)
-    expect(result.mainInstruction).toContain('Special handling')
+    expect(result.mainInstruction).toContain('five general bins')
     expect(result.preparationSteps.join(' ')).not.toContain('dismantle')
   })
 
