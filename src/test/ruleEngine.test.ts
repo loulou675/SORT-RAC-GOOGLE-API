@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { AppError } from '../lib/errors'
 import { evaluateDisposal, evaluateMaterialFallback, getDefaultConditionForItem } from '../features/sorting/ruleEngine'
+import { ensureContentsPart } from '../providers/vision/googleVisionProvider'
 import { trainingTargetClassCodes } from '../config/modelClasses'
 import { wasteItems } from '../data/referenceData'
-import type { ConditionKey } from '../types/domain'
+import type { ConditionKey, RecognizedPart } from '../types/domain'
 
 function answers(condition: ConditionKey) {
   return {
@@ -26,6 +27,31 @@ function evaluate(itemCode: string, condition: ConditionKey = 'default') {
 }
 
 describe('rule engine', () => {
+  it('adds a visible Organic part when food or liquid is detected but omitted', () => {
+    const parts: RecognizedPart[] = [{
+      name: 'Lid',
+      material: 'plastic',
+      condition: 'clean',
+      confidence: 0.94,
+    }]
+
+    const result = ensureContentsPart(parts, 'contains_food_or_liquid')
+
+    expect(result.map((part) => part.name)).toEqual(['Lid', 'Food or liquid'])
+    expect(result[1]).toMatchObject({ material: 'organic', condition: 'contains_food_or_liquid' })
+  })
+
+  it('does not duplicate an existing food or liquid visible part', () => {
+    const parts: RecognizedPart[] = [{
+      name: 'Remaining liquid',
+      material: 'organic',
+      condition: 'contains_food_or_liquid',
+      confidence: 0.94,
+    }]
+
+    expect(ensureContentsPart(parts, 'contains_food_or_liquid')).toEqual(parts)
+  })
+
   it('selects the exact condition rule before a generic rule', () => {
     const result = evaluate('plastic_water_bottle', 'contains_liquid')
 

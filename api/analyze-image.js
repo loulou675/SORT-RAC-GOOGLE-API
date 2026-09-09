@@ -191,6 +191,7 @@ Always return:
 - observed_label: the plain-language name you can actually see or read.
 - material_label: the most specific visible material or material combination.
 - condition: clean, dirty, wet, contains_food_or_liquid, empty, or unknown. Use unknown when the photo cannot support the claim; never assume clean from appearance alone.
+- When condition is contains_food_or_liquid, always include a visible part named "Food or liquid" with material "organic" and condition "contains_food_or_liquid". This part must be shown even when the food or liquid is inside the main container.
 - For kind "item" or "material", parts are only clearly visible attached parts that need separate disposal, such as a lid, pump, straw, cap, paper sleeve, battery, liquid, or food. Do not invent hidden parts.
 - For kind "multiple", parts are the recognised objects themselves and every part must have an exact item_code from the catalogue.
 - reason: one concise, object-only description, maximum 14 words. Describe only the waste item, its visible material, condition, and attached parts. Never mention a hand, person, table, floor, background, room, camera angle, position, or any other scene context. For example: "A plastic milk tea cup with a straw and remaining liquid." Never mention the catalogue, item code, model confidence, or matching.

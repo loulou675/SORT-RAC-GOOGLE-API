@@ -88,25 +88,44 @@ function errorCodeForStatus(status: number, payloadCode?: string) {
 }
 
 function normalizeDetails(payload: GoogleResponse): RecognitionDetails {
+  const condition = normalizeCondition(payload.condition)
+  const parts = Array.isArray(payload.parts)
+    ? payload.parts
+      .filter((part) => part && typeof part.name === 'string')
+      .slice(0, 8)
+      .map((part) => ({
+        name: cleanText(part.name, 'Visible part'),
+        itemCode: typeof part.itemCode === 'string' ? part.itemCode : undefined,
+        material: cleanText(part.material, 'Unknown material'),
+        condition: normalizeCondition(part.condition),
+        confidence: clamp(Number(part.confidence)),
+      }))
+    : []
+
   return {
     observedLabel: cleanText(payload.observedLabel, 'Unknown item'),
     materialLabel: cleanText(payload.materialLabel, payload.materialCode ?? 'Unknown material'),
-    condition: normalizeCondition(payload.condition),
-    parts: Array.isArray(payload.parts)
-      ? payload.parts
-        .filter((part) => part && typeof part.name === 'string')
-        .slice(0, 8)
-        .map((part) => ({
-          name: cleanText(part.name, 'Visible part'),
-          itemCode: typeof part.itemCode === 'string' ? part.itemCode : undefined,
-          material: cleanText(part.material, 'Unknown material'),
-          condition: normalizeCondition(part.condition),
-          confidence: clamp(Number(part.confidence)),
-        }))
-      : [],
+    condition,
+    parts: ensureContentsPart(parts, condition),
     confidence: clamp(Number(payload.confidence)),
     reason: cleanText(payload.reason, 'The image was analysed using Google Gemini.'),
   }
+}
+
+export function ensureContentsPart(parts: RecognizedPart[], condition: RecognitionCondition) {
+  if (condition !== 'contains_food_or_liquid' || parts.some((part) => /food|liquid/i.test(part.name))) {
+    return parts
+  }
+
+  return [
+    ...parts.slice(0, 7),
+    {
+      name: 'Food or liquid',
+      material: 'organic',
+      condition,
+      confidence: 1,
+    },
+  ]
 }
 
 function normalizeCondition(value: unknown): RecognitionCondition {
