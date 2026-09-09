@@ -111,7 +111,7 @@ export function DevStatsPage() {
       </header>
 
       <section className="devstats-intro">
-        <p className="devstats-kicker">Field telemetry / aggregate view</p>
+        <p className="devstats-kicker">Google API telemetry / aggregate view</p>
         <h1>How people use<br /><em>the sorter.</em></h1>
         <p className="devstats-intro-copy">
           Anonymous, privacy-minimized signals from real sessions. Dashboard visits are excluded from every figure below.
@@ -125,7 +125,7 @@ export function DevStatsPage() {
           <p className="devstats-kicker">Connection needed</p>
           <h2>The statistics endpoint is not ready.</h2>
           <p>{error}</p>
-          <p>Apply Supabase migrations 005 and 006 to enable anonymous collection and engagement reporting.</p>
+          <p>Apply the Supabase analytics migrations to enable anonymous collection and engagement reporting.</p>
           <button type="button" onClick={loadStats}>Try again</button>
         </section>
       ) : null}

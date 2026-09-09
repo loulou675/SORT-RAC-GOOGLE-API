@@ -1,8 +1,9 @@
 import { z } from 'zod'
 import { supabase } from '../lib/supabase/client'
 
-const visitorStorageKey = 'sot-rac-analytics-visitor-v1'
+const visitorStorageKey = 'sort-rac-google-api-analytics-visitor-v1'
 const heartbeatMilliseconds = 15_000
+const analyticsSiteId = 'google_api'
 
 const eventNames = [
   'page_view',
@@ -181,6 +182,7 @@ async function syncSession() {
     p_exit_path: session.exitPath,
     p_device_category: session.deviceCategory,
     p_referrer_host: session.referrerHost ?? null,
+    p_site_id: analyticsSiteId,
   })
   sessionSynced = !error
   if (error && import.meta.env.DEV) console.warn('Analytics session was not saved.', error.message)
@@ -239,6 +241,7 @@ export async function trackFeature(featureCode: string, eventName: AnalyticsEven
     p_event_name: eventName,
     p_feature_code: normalizedFeature,
     p_path: normalizeStatsPath(),
+    p_site_id: analyticsSiteId,
   })
   if (error && import.meta.env.DEV) console.warn('Analytics event was not saved.', error.message)
 }
@@ -248,7 +251,10 @@ export async function fetchDevStats(days: 7 | 30 | 90): Promise<DevStats> {
     return mockDevStats(days)
   }
   if (!supabase) throw new Error('Analytics is not configured for this build.')
-  const { data, error } = await supabase.rpc('get_devstats', { p_days: days })
+  const { data, error } = await supabase.rpc('get_devstats', {
+    p_days: days,
+    p_site_id: analyticsSiteId,
+  })
   if (error) throw new Error(error.message)
   return devStatsSchema.parse(data)
 }
