@@ -46,11 +46,11 @@ export function messageForError(code?: AppErrorCode) {
   }
 
   if (code === 'IMAGE_TOO_LARGE') {
-    return 'This image is larger than 20 MB. Please choose a smaller JPG, PNG or WEBP image.'
+    return 'This image is larger than 20 MB. Please choose a smaller JPG, PNG, WEBP or HEIC image.'
   }
 
   if (code === 'IMAGE_INVALID' || code === 'IMAGE_DECODE_FAILED') {
-    return 'This image could not be read. Please choose a JPG, PNG or WEBP image.'
+    return 'This image could not be read. Please choose a JPG, PNG, WEBP or HEIC image.'
   }
 
   if (code === 'DATABASE_UNAVAILABLE') {
@@ -104,8 +104,8 @@ export function messageForErrorVi(code?: AppErrorCode) {
   if (code === 'CAMERA_EMBEDDED_BROWSER') return 'Camera có thể không hoạt động ổn định trong Instagram hoặc Facebook. Hãy mở trang bằng Safari hoặc Chrome, hoặc tải ảnh lên.'
   if (code === 'CAMERA_PERMISSION_DENIED') return 'Quyền truy cập camera đã bị chặn. Bạn có thể tải ảnh lên hoặc tìm kiếm thủ công.'
   if (code === 'CAMERA_NOT_AVAILABLE') return 'Không tìm thấy camera trên thiết bị. Bạn có thể tải ảnh lên hoặc tìm kiếm thủ công.'
-  if (code === 'IMAGE_TOO_LARGE') return 'Ảnh lớn hơn 20 MB. Hãy chọn ảnh JPG, PNG hoặc WEBP nhỏ hơn.'
-  if (code === 'IMAGE_INVALID' || code === 'IMAGE_DECODE_FAILED') return 'Không thể đọc ảnh này. Hãy chọn ảnh JPG, PNG hoặc WEBP.'
+  if (code === 'IMAGE_TOO_LARGE') return 'Ảnh lớn hơn 20 MB. Hãy chọn ảnh JPG, PNG, WEBP hoặc HEIC nhỏ hơn.'
+  if (code === 'IMAGE_INVALID' || code === 'IMAGE_DECODE_FAILED') return 'Không thể đọc ảnh này. Hãy chọn ảnh JPG, PNG, WEBP hoặc HEIC.'
   if (code === 'DATABASE_UNAVAILABLE') return 'Hướng dẫn phân loại đang tạm thời gián đoạn. Hãy thử tìm kiếm thủ công.'
   if (code === 'MODEL_NOT_CONFIGURED') return 'Chưa cấu hình Google recognition cho deployment này. Hãy thêm GEMINI_API_KEY ở server environment.'
   if (code === 'MODEL_LOAD_FAILED') return 'Không thể khởi động Google recognition. Hãy kiểm tra API key và cấu hình deploy.'

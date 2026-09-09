@@ -1,4 +1,4 @@
-const MODEL = 'gemini-3.5-flash-lite'
+const MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite'
 const MAX_BASE64_LENGTH = 5 * 1024 * 1024
 
 export const config = {
@@ -23,11 +23,11 @@ export default async function handler(request, response) {
   const body = typeof request.body === 'string' ? safeJson(request.body) : request.body
   const dataUrl = body?.imageDataUrl
   const match = typeof dataUrl === 'string'
-    ? dataUrl.match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/)
+    ? dataUrl.match(/^data:(image\/(?:jpeg|png|webp|heic|heif));base64,([A-Za-z0-9+/=]+)$/)
     : null
 
   if (!match) {
-    return response.status(400).json({ error: 'Send one JPEG, PNG or WEBP image as imageDataUrl' })
+    return response.status(400).json({ error: 'Send one JPEG, PNG, WEBP, HEIC or HEIF image as imageDataUrl' })
   }
 
   const mimeType = match[1]
@@ -96,8 +96,8 @@ export default async function handler(request, response) {
             },
             required: ['kind', 'confidence', 'observed_label', 'material_label', 'condition', 'parts', 'reason'],
           },
-          temperature: 0.1,
-          maxOutputTokens: 420,
+          thinkingConfig: { thinkingLevel: 'minimal' },
+          maxOutputTokens: 320,
         },
       }),
     })
@@ -176,9 +176,9 @@ function buildPrompt(catalogue) {
     .map((item) => `${item.code}: ${item.name} | material=${item.material ?? 'unknown'} | category=${item.category} | aliases=${(item.aliases ?? []).join(', ')}`)
     .join('\n')
 
-  return `Analyse this whole image like a visual search and OCR assistant for a local waste-sorting app.
+  return `Analyse this whole image as a visual search and OCR assistant for a local waste-sorting app.
 
-Read visible packaging text when it helps distinguish the object, for example eye-drop bottles, medicine containers, cream tubes, food packaging, or cleaning products. Identify the main object even when it is not centered in the image. Do not require a crop or a guide box.
+Read visible packaging text before choosing a generic container label. Identify the main object even when it is not centered in the image. Do not require a crop or a guide box. A visible yogurt/yoghurt/Greek-yogurt pot remains yogurt_cup even when opened or partly used; put residue in condition.
 
 First count the separate discardable objects visible in the image. Do not count attached parts of one object, such as a bottle cap or a cup lid, as separate objects.
 

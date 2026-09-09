@@ -1,12 +1,18 @@
 import { AppError } from '../errors'
 
-const supportedTypes = new Set(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
+const supportedTypes = new Set(['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif'])
 export const maxImageMegabytes = 20
 const maxImageBytes = maxImageMegabytes * 1024 * 1024
 const minDimension = 224
 
-export async function validateImageFile(file: File) {
-  if (!supportedTypes.has(file.type)) {
+export function isHeicImage(file: Pick<Blob, 'type'> & { name?: string }) {
+  return file.type === 'image/heic'
+    || file.type === 'image/heif'
+    || /\.(heic|heif)$/i.test(file.name ?? '')
+}
+
+export async function validateImageFile(file: Blob & { name?: string }) {
+  if (!supportedTypes.has(file.type) && !isHeicImage(file)) {
     throw new AppError('IMAGE_INVALID', 'Unsupported image type')
   }
 

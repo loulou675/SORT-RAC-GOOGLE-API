@@ -1,13 +1,25 @@
-import { validateImageFile } from '../../lib/validation/imageValidation'
+import { AppError } from '../../lib/errors'
+import { isHeicImage, validateImageFile } from '../../lib/validation/imageValidation'
 
 const MAX_UPLOAD_DIMENSION = 1600
 
 export async function fileToDataUrl(file: File) {
-  const dimensions = await validateImageFile(file)
-  return normalizeImageFile(file, dimensions)
+  const source = isHeicImage(file) ? await convertHeicToJpeg(file) : file
+  const dimensions = await validateImageFile(source)
+  return normalizeImageFile(source, dimensions)
 }
 
-async function normalizeImageFile(file: File, dimensions: { width: number; height: number }) {
+async function convertHeicToJpeg(file: File) {
+  try {
+    const { default: heic2any } = await import('heic2any')
+    const converted = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.9 })
+    return Array.isArray(converted) ? converted[0] : converted
+  } catch (error) {
+    throw new AppError('IMAGE_DECODE_FAILED', 'HEIC image could not be converted', error)
+  }
+}
+
+async function normalizeImageFile(file: Blob, dimensions: { width: number; height: number }) {
   const objectUrl = URL.createObjectURL(file)
 
   try {

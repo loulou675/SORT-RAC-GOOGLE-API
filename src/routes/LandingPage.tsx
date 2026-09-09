@@ -505,7 +505,7 @@ function UploadDialog({
           ref={inputRef}
           className="hidden-input"
           type="file"
-          accept="image/jpeg,image/png,image/webp"
+          accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
           onChange={(event) => readFileList(event.target.files)}
         />
       </section>
@@ -543,7 +543,8 @@ function recognitionConditionToRuleCondition(itemCode: string, condition: Recogn
   const questionKey = getQuestionForItem(itemCode)?.questionKey
 
   if (condition === 'contains_food_or_liquid') {
-    return questionKey === 'container_state' ? 'contains_liquid' : 'contains_food_liquid'
+    if (questionKey === 'container_state') return 'contains_liquid'
+    return questionKey === 'plastic_cleanliness' ? 'dirty' : 'contains_food_liquid'
   }
   if (condition === 'empty') {
     return questionKey === 'container_state' ? 'empty' : 'clean_empty'
