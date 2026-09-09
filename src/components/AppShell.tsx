@@ -3,6 +3,7 @@ import { History, Info, Lightbulb, ScanLine, Search } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { searchWasteItems } from '../features/search/searchEngine'
+import { openCameraEventName } from '../features/camera/cameraEvents'
 import { trackFeature, trackPageView } from '../services/siteAnalytics'
 
 export function AppShell() {
@@ -86,7 +87,19 @@ export function AppShell() {
           <Lightbulb size={18} aria-hidden="true" />
           <span className="nav-label">Eco Tips</span>
         </button>
-        <button type="button" aria-label="Waste Scan" className={location.pathname === '/' ? 'active' : ''} onClick={() => { void trackFeature('waste_scan'); navigate('/') }}>
+        <button
+          type="button"
+          aria-label="Waste Scan"
+          className={location.pathname === '/' ? 'active' : ''}
+          onClick={() => {
+            void trackFeature('waste_scan')
+            if (location.pathname === '/') {
+              window.dispatchEvent(new Event(openCameraEventName))
+            } else {
+              navigate('/')
+            }
+          }}
+        >
           <ScanLine size={20} aria-hidden="true" />
           <span className="nav-label">Waste Scan</span>
         </button>

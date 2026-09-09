@@ -69,7 +69,7 @@ test('special-handling item flow', async ({ page }) => {
   await page.getByRole('button', { name: /^Battery/i }).click()
 
   await expect(page.getByText(/Battery/i).first()).toBeVisible()
-  await expect(page.getByText(/Special handling required/i)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Hazardous' })).toBeVisible()
 })
 
 test('camera permission denied flow', async ({ page }) => {
@@ -84,6 +84,25 @@ test('camera permission denied flow', async ({ page }) => {
 
   await page.goto('/')
   await page.getByRole('button', { name: /^Start Scanning/i }).dispatchEvent('click')
+  await expect(page.getByText(/Camera access was blocked/i)).toBeVisible()
+})
+
+test('bottom scan control opens the camera from a result', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'mediaDevices', {
+      value: {
+        getUserMedia: () => Promise.reject(new DOMException('Permission denied', 'NotAllowedError')),
+      },
+      configurable: true,
+    })
+  })
+
+  await page.goto('/')
+  await page.getByLabel(/Search waste item/i).fill('pizza')
+  await page.getByRole('button', { name: /Pizza box/i }).click()
+  await expect(page.getByText(/Paper & Cardboard/).first()).toBeVisible()
+
+  await page.getByRole('button', { name: 'Waste Scan' }).click()
   await expect(page.getByText(/Camera access was blocked/i)).toBeVisible()
 })
 

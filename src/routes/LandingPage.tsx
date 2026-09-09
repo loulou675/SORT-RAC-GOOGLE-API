@@ -7,6 +7,7 @@ import { TrainingFeedbackPanel } from '../components/TrainingFeedbackPanel'
 import { UserSurveyModal } from '../components/UserSurveyModal'
 import { CameraCapture } from '../features/camera/CameraCapture'
 import { isEmbeddedSocialBrowser } from '../features/camera/browserSupport'
+import { openCameraEventName } from '../features/camera/cameraEvents'
 import { fileToDataUrl } from '../features/camera/fileInput'
 import { evaluateDisposal, evaluateMaterialFallback, getDefaultConditionForItem, getQuestionForItem } from '../features/sorting/ruleEngine'
 import { AppError, messageForError, messageForErrorVi, toAppError } from '../lib/errors'
@@ -83,6 +84,15 @@ export function LandingPage() {
 
   useEffect(() => () => {
     if (surveyTimerRef.current !== undefined) window.clearTimeout(surveyTimerRef.current)
+  }, [])
+
+  useEffect(() => {
+    function handleOpenCamera() {
+      startCamera()
+    }
+
+    window.addEventListener(openCameraEventName, handleOpenCamera)
+    return () => window.removeEventListener(openCameraEventName, handleOpenCamera)
   }, [])
 
   useEffect(() => {
