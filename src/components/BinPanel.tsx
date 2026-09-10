@@ -286,10 +286,19 @@ function shortAnalysisDescription(reason: string, fallbackLabel: string) {
 
 function findPartRoute(partName: string, componentActions: RuleEngineResult['componentActions']) {
   const normalizedPartName = partName.trim().toLocaleLowerCase()
-  return componentActions.find((component) => {
+  const directMatch = componentActions.find((component) => {
     const normalizedComponentName = component.componentEn.trim().toLocaleLowerCase()
     return normalizedPartName.includes(normalizedComponentName) || normalizedComponentName.includes(normalizedPartName)
   })
+
+  if (directMatch) return directMatch
+
+  // Gemini may call the same visible contents "Food or liquid" or "Remaining liquid".
+  if (/(food|liquid|contents?|drink|thức ăn|đồ ăn|chất lỏng)/i.test(normalizedPartName)) {
+    return componentActions.find((component) => component.code === 'remaining_liquid')
+  }
+
+  return undefined
 }
 
 function getPartInstruction(partName: string, componentActions: RuleEngineResult['componentActions'], fallbackBin: Bin) {
