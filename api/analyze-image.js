@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto'
+
 const MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite'
 const MAX_BASE64_LENGTH = 5 * 1024 * 1024
 
@@ -10,14 +12,34 @@ export const config = {
 }
 
 export default async function handler(request, response) {
+  // Temporary K230 diagnostics: never log the request, photo or API key.
+  // The existing board response logger saves this same diagnostic envelope.
+  const diagnosticEnabled = request.headers?.['user-agent'] === 'Sort-Rac-K230/1'
+  const diagnosticId = diagnosticEnabled ? randomUUID() : undefined
+  let googleDiagnostic = null
+  function send(status, result) {
+    if (!diagnosticEnabled) return response.status(status).json(result)
+    const diagnostic = {
+      version: 'k230-google-board-v1', id: diagnosticId,
+      model: MODEL, google: googleDiagnostic,
+      server: { httpStatus: status, decision: result },
+    }
+    const secret = process.env.GEMINI_API_KEY
+    const serialized = JSON.stringify(diagnostic)
+    const safe = JSON.parse(secret ? serialized.split(secret).join('<redacted>') : serialized)
+    try {
+      console.info('SORT_RAC_DIAGNOSTIC ' + JSON.stringify(safe))
+    } catch { /* Logging must not affect recognition. */ }
+    return response.status(status).json({ ...result, diagnostic: safe })
+  }
   if (request.method !== 'POST') {
     response.setHeader('Allow', 'POST')
-    return response.status(405).json({ error: 'Method not allowed' })
+    return send(405, { error: 'Method not allowed' })
   }
 
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) {
-    return response.status(503).json({ error: 'GEMINI_API_KEY is not configured on the server' })
+    return send(503, { error: 'GEMINI_API_KEY is not configured on the server' })
   }
 
   const body = typeof request.body === 'string' ? safeJson(request.body) : request.body
@@ -27,13 +49,13 @@ export default async function handler(request, response) {
     : null
 
   if (!match) {
-    return response.status(400).json({ error: 'Send one JPEG, PNG, WEBP, HEIC or HEIF image as imageDataUrl' })
+    return send(400, { error: 'Send one JPEG, PNG, WEBP, HEIC or HEIF image as imageDataUrl' })
   }
 
   const mimeType = match[1]
   const imageData = match[2]
   if (imageData.length > MAX_BASE64_LENGTH) {
-    return response.status(413).json({ error: 'Image is too large after compression' })
+    return send(413, { error: 'Image is too large after compression' })
   }
 
   const catalogue = Array.isArray(body?.catalogue) ? body.catalogue : []
@@ -102,12 +124,23 @@ export default async function handler(request, response) {
       }),
     })
   } catch (error) {
-    return response.status(502).json({ error: 'Google API request failed', detail: String(error) })
+    return send(502, { error: 'Google API request failed', detail: String(error) })
   }
 
   const payload = await googleResponse.json().catch(() => ({}))
+  if (diagnosticEnabled) {
+    const rawText = payload?.candidates?.[0]?.content?.parts
+      ?.filter((part) => typeof part.text === 'string' && !part.thought)
+      .map((part) => part.text).join('\n') ?? ''
+    googleDiagnostic = {
+      httpStatus: googleResponse.status,
+      finishReason: payload?.candidates?.[0]?.finishReason ?? null,
+      blockReason: payload?.promptFeedback?.blockReason ?? null,
+      rawText: rawText.slice(0, 8192), truncated: rawText.length > 8192,
+    }
+  }
   if (!googleResponse.ok) {
-    return response.status(googleResponse.status >= 500 ? 502 : googleResponse.status).json({
+    return send(googleResponse.status >= 500 ? 502 : googleResponse.status, {
       error: payload?.error?.message ?? 'Google API returned an error',
     })
   }
@@ -115,7 +148,7 @@ export default async function handler(request, response) {
   const text = payload?.candidates?.[0]?.content?.parts?.find((part) => typeof part.text === 'string')?.text
   const parsed = safeJson(text)
   if (!parsed || typeof parsed !== 'object') {
-    return response.status(502).json({ error: 'Google API returned an unreadable result' })
+    return send(502, { error: 'Google API returned an unreadable result' })
   }
 
   const allowedCodes = new Set(catalogue.map((item) => item?.code).filter(Boolean))
@@ -129,13 +162,13 @@ export default async function handler(request, response) {
       && parts.length <= 8
       && parts.every((part) => part.itemCode && part.confidence >= 0.58)
     if (!everyObjectRecognised) {
-      return response.status(422).json({
+      return send(422, {
         code: 'MULTIPLE_ITEMS_DETECTED',
         error: 'Every visible object must be recognised before showing multi-object disposal guidance',
       })
     }
 
-    return response.status(200).json({
+    return send(200, {
       kind: 'multiple',
       confidence,
       observedLabel: 'Multiple objects',
@@ -151,13 +184,13 @@ export default async function handler(request, response) {
     || (parsed.kind === 'item' && !itemCode)
     || (parsed.kind === 'material' && !materialCode)
   ) {
-    return response.status(422).json({
+    return send(422, {
       code: 'ITEM_AMBIGUOUS',
       error: 'The image could not be identified with enough confidence',
     })
   }
 
-  return response.status(200).json({
+  return send(200, {
     kind: itemCode ? 'item' : 'material',
     itemCode,
     materialCode: itemCode ? undefined : materialCode,
