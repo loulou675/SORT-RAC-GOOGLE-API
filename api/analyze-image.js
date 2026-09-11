@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { performance } from 'node:perf_hooks'
 
 const MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite'
 const MAX_BASE64_LENGTH = 5 * 1024 * 1024
@@ -12,9 +13,13 @@ export const config = {
 }
 
 export default async function handler(request, response) {
+  const handlerStarted = performance.now()
+  let googleTotalMs = 0
+  const timings = {}
   // Temporary K230 diagnostics: never log the request, photo or API key.
   // The existing board response logger saves this same diagnostic envelope.
   const diagnosticEnabled = request.headers?.['user-agent'] === 'Sort-Rac-K230/1'
+  const timingEnabled = diagnosticEnabled && request.headers?.['x-sort-rac-timing'] === '1'
   const diagnosticId = diagnosticEnabled ? randomUUID() : undefined
   let googleDiagnostic = null
   function send(status, result) {
@@ -23,6 +28,17 @@ export default async function handler(request, response) {
       version: 'k230-google-board-v1', id: diagnosticId,
       model: MODEL, google: googleDiagnostic,
       server: { httpStatus: status, decision: result },
+    }
+    if (timingEnabled) {
+      // Google duration includes outbound network and response-body reading;
+      // it is not a measurement of Google's internal inference time alone.
+      const total = performance.now() - handlerStarted
+      diagnostic.timings = {
+        version: 1, ...timings,
+        google_total_ms: Math.round(googleTotalMs),
+        server_total_ms: Math.round(total),
+        server_non_google_ms: Math.round(Math.max(0, total - googleTotalMs)),
+      }
     }
     const secret = process.env.GEMINI_API_KEY
     const serialized = JSON.stringify(diagnostic)
@@ -62,6 +78,7 @@ export default async function handler(request, response) {
   const prompt = buildPrompt(catalogue)
 
   let googleResponse
+  const googleStarted = performance.now()
   try {
     googleResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
       method: 'POST',
@@ -123,11 +140,16 @@ export default async function handler(request, response) {
         },
       }),
     })
+    timings.google_headers_ms = Math.round(performance.now() - googleStarted)
   } catch (error) {
+    googleTotalMs = performance.now() - googleStarted
     return send(502, { error: 'Google API request failed', detail: String(error) })
   }
 
+  const bodyStarted = performance.now()
   const payload = await googleResponse.json().catch(() => ({}))
+  timings.google_body_ms = Math.round(performance.now() - bodyStarted)
+  googleTotalMs = performance.now() - googleStarted
   if (diagnosticEnabled) {
     const rawText = payload?.candidates?.[0]?.content?.parts
       ?.filter((part) => typeof part.text === 'string' && !part.thought)
