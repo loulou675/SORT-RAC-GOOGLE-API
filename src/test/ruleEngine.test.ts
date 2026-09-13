@@ -129,6 +129,12 @@ describe('rule engine', () => {
     expect(result.destinationBin.code).toBe('paper_cardboard')
   })
 
+  it('routes thin paperboard packaging to Paper & Cardboard', () => {
+    const result = evaluate('paperboard_packaging', 'clean_dry')
+
+    expect(result.destinationBin.code).toBe('paper_cardboard')
+  })
+
   it('routes greasy cardboard to Landfill', () => {
     const result = evaluate('cardboard_box', 'greasy')
 

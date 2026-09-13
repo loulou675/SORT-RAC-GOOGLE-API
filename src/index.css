@@ -357,41 +357,66 @@
   background: var(--sea);
 }
 
-.devstats-retention-list {
-  display: grid;
-  gap: 0.48rem;
+.devstats-retention-table-wrap {
+  margin-top: 0.35rem;
+  overflow-x: auto;
 }
 
-.devstats-retention-list > div {
-  display: grid;
-  grid-template-columns: 3.9rem minmax(0, 1fr);
-  align-items: center;
-  gap: 0.65rem;
+.devstats-retention-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
 }
 
-.devstats-retention-list small {
-  overflow: hidden;
-  font-size: 0.58rem;
-  text-overflow: ellipsis;
+.devstats-retention-table th,
+.devstats-retention-table td {
+  padding: 0.52rem 0;
+  border-bottom: 1px solid rgba(23, 20, 17, 0.11);
+  text-align: right;
   white-space: nowrap;
-  opacity: 0.64;
 }
 
-.devstats-retention-list > div > span {
-  display: flex;
-  height: 0.62rem;
-  overflow: hidden;
-  background: rgba(23, 20, 17, 0.09);
+.devstats-retention-table thead th {
+  padding-top: 0.2rem;
+  padding-bottom: 0.55rem;
+  border-bottom-color: rgba(23, 20, 17, 0.2);
+  color: #6d655d;
+  font-size: 0.58rem;
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-.devstats-retention-list i {
+.devstats-retention-table th:first-child,
+.devstats-retention-table tbody th {
+  text-align: left;
+}
+
+.devstats-retention-table tbody th {
+  font-weight: 650;
+}
+
+.devstats-retention-table td,
+.devstats-retention-table tbody th {
+  color: #211d19;
+}
+
+.devstats-retention-table .new { color: #bb650f; }
+.devstats-retention-table .returning { color: #387450; }
+
+.devstats-retention-day {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.devstats-retention-day i {
   display: block;
-  min-width: 0;
-  transition: width 180ms ease;
+  width: 0.45rem;
+  height: 0.45rem;
+  background: rgba(23, 20, 17, 0.2);
 }
-
-.devstats-retention-list i.new { background: var(--tangerine); }
-.devstats-retention-list i.returning { background: var(--sea); }
 
 .devstats-panel-note {
   margin: 1rem 0 0;
@@ -858,10 +883,6 @@
 
   .devstats-source-list > div {
     border-right: 0;
-  }
-
-  .devstats-retention-list > div:nth-child(n + 12) {
-    display: none;
   }
 
   .devstats-footer {

@@ -184,19 +184,32 @@ export function DevStatsPage() {
                 <span><strong>{formatCompact(retentionTotals.newVisitors)}</strong> new</span>
                 <span><strong>{formatCompact(retentionTotals.returningVisitors)}</strong> returning</span>
               </div>
-              <div className="devstats-retention-list" role="img" aria-label="Daily new and returning visitors">
-                {retentionDaily.map((day) => {
-                  const total = Math.max(1, day.newVisitors + day.returningVisitors)
-                  return (
-                    <div key={day.date} title={`${formatDay(day.date, range)}: ${day.newVisitors} new, ${day.returningVisitors} returning`}>
-                      <small>{formatDay(day.date, range)}</small>
-                      <span>
-                        <i className="new" style={{ width: `${(day.newVisitors / total) * 100}%` }} />
-                        <i className="returning" style={{ width: `${(day.returningVisitors / total) * 100}%` }} />
-                      </span>
-                    </div>
-                  )
-                })}
+              <div className="devstats-retention-table-wrap">
+                <table className="devstats-retention-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Day</th>
+                      <th scope="col" className="new">New</th>
+                      <th scope="col" className="returning">Returning</th>
+                      <th scope="col">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {retentionDaily.map((day) => (
+                      <tr key={day.date}>
+                        <th scope="row">
+                          <span className="devstats-retention-day">
+                            <i aria-hidden="true" />
+                            {formatDay(day.date, range)}
+                          </span>
+                        </th>
+                        <td className="new">{formatCompact(day.newVisitors)}</td>
+                        <td className="returning">{formatCompact(day.returningVisitors)}</td>
+                        <td>{formatCompact(day.newVisitors + day.returningVisitors)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
               <p className="devstats-panel-note">Returning means the anonymous browser first visited before the current reporting period.</p>
             </article>

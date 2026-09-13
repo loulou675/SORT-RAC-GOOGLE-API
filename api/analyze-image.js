@@ -178,7 +178,7 @@ function buildPrompt(catalogue) {
 
   return `Analyse this whole image as a visual search and OCR assistant for a local waste-sorting app.
 
-Read visible packaging text before choosing a generic container label. Identify the main object even when it is not centered in the image. Do not require a crop or a guide box. A visible yogurt/yoghurt/Greek-yogurt pot remains yogurt_cup even when opened or partly used; put residue in condition.
+Read visible packaging text before choosing a generic container label. Identify the main object even when it is not centered in the image. Do not require a crop or a guide box. A visible yogurt/yoghurt/Greek-yogurt pot remains yogurt_cup even when opened or partly used; put residue in condition. Classify the visible packaging by its material and structure, not by the product named on the label. If only an outer paperboard or cardboard carton is visible, classify that carton and never infer a hidden container inside it.
 
 First count the separate discardable objects visible in the image. Do not count attached parts of one object, such as a bottle cap or a cup lid, as separate objects.
 
@@ -200,6 +200,7 @@ Safety rules:
 - Food or edible leftovers are organic; do not label them as disposable cutlery just because a utensil is visible nearby.
 - A spoon, fork, knife or other utensil is disposable_cutlery only when it is the main object being scanned.
 - Cosmetic containers with product residue or parts that cannot be cleaned are cosmetic containers and should not be treated as clean plastic.
+- A thin folding retail carton belongs to paperboard_packaging; a thick or corrugated box belongs to cardboard_box. Choose a product container such as a tube only when that container itself is visible.
 - Batteries, electronics, chemicals, medicine, medical items and sharp objects require special handling or a cautious material result.
 - Cat litter or animal faeces are not ordinary food waste; use the catalogue item when available and prefer a cautious non-recycling result.
 - Eye-drop bottles, medicine bottles, cream tubes and other healthcare packaging must not be treated as ordinary clean plastic when residue or medication may remain.
