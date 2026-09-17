@@ -20,6 +20,12 @@ const records: FieldRecord[] = Array.from({ length: totalRequests }, (_, index) 
   }
 }).sort((a, b) => a.time.localeCompare(b.time))
 
+const hourlyScanVolume = [11, 12, 13, 14].map((hour) => ({
+  label: `${hour > 12 ? hour - 12 : hour} ${hour < 12 ? 'AM' : 'PM'}`,
+  count: records.filter((record) => Number(record.time.slice(0, 2)) === hour).length,
+}))
+const graphMax = Math.max(...hourlyScanVolume.map((bucket) => bucket.count), 1)
+
 export function FieldTestStatsPage() {
   const completed = records.filter((record) => record.outcome === 'Successful').length
   const failed = records.length - completed
@@ -43,6 +49,40 @@ export function FieldTestStatsPage() {
         <div><span>Requests recorded</span><strong>{totalRequests}</strong></div>
         <div><span>Successful</span><strong>{completed}</strong></div>
         <div><span>Unsuccessful</span><strong>{failed}</strong></div>
+      </section>
+
+      <section className="fieldstats-chart" aria-labelledby="fieldstats-chart-title">
+        <div className="fieldstats-log-heading">
+          <div>
+            <p>Example activity</p>
+            <h2 id="fieldstats-chart-title">Scans by time</h2>
+          </div>
+          <span>Scans recorded</span>
+        </div>
+        <div className="fieldstats-chart-wrap">
+          <svg className="fieldstats-chart-svg" viewBox="0 0 680 300" role="img" aria-label="Number of example scans recorded by hour">
+            {[0, 1, 2, 3].map((step) => {
+              const y = 42 + step * 58
+              const label = Math.round(graphMax - (graphMax * step / 3))
+              return <g key={step}><line x1="70" x2="650" y1={y} y2={y} /><text x="57" y={y + 5}>{label}</text></g>
+            })}
+            <line className="fieldstats-axis" x1="70" x2="650" y1="216" y2="216" />
+            {hourlyScanVolume.map((bucket, index) => {
+              const x = 116 + index * 145
+              const height = (bucket.count / graphMax) * 170
+              const y = 216 - height
+              return (
+                <g key={bucket.label}>
+                  <rect x={x} y={y} width="78" height={height} rx="4" />
+                  <text className="fieldstats-bar-value" x={x + 39} y={y - 10}>{bucket.count}</text>
+                  <text className="fieldstats-axis-label" x={x + 39} y="246">{bucket.label}</text>
+                </g>
+              )
+            })}
+            <text className="fieldstats-y-title" x="18" y="137" transform="rotate(-90 18 137)">Scans</text>
+            <text className="fieldstats-x-title" x="360" y="284">Time</text>
+          </svg>
+        </div>
       </section>
 
       <section className="fieldstats-log" aria-labelledby="fieldstats-log-title">
