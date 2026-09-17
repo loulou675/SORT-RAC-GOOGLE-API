@@ -7,6 +7,14 @@
     {
       "source": "/devstats/",
       "destination": "/index.html"
+    },
+    {
+      "source": "/fieldteststats",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/fieldteststats/",
+      "destination": "/index.html"
     }
   ],
   "functions": {
