@@ -14,6 +14,7 @@ import { ScanPage } from './routes/ScanPage'
 import { SearchPage } from './routes/SearchPage'
 import { DevStatsPage } from './routes/DevStatsPage'
 import { EcoTipsPage } from './routes/EcoTipsPage'
+import { FieldTestStatsPage } from './routes/FieldTestStatsPage'
 
 const router = createHashRouter([
   {
@@ -39,6 +40,10 @@ const router = createHashRouter([
 ])
 
 export default function App() {
+  if (/\/fieldteststats\/?$/.test(window.location.pathname)) {
+    return <FieldTestStatsPage />
+  }
+
   if (/\/devstats\/?$/.test(window.location.pathname)) {
     return <DevStatsPage />
   }

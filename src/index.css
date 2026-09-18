@@ -24,6 +24,76 @@
   text-rendering: optimizeLegibility;
 }
 
+/* Presentation-only field test report. */
+.fieldstats-page {
+  min-height: 100vh;
+  padding: 0 clamp(1rem, 5vw, 5rem) 4rem;
+  color: #171411;
+  background: #f7f1e9;
+}
+
+.fieldstats-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.4rem 0;
+  border-bottom: 1px solid rgba(23, 20, 17, .28);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+
+.fieldstats-brand { color: inherit; text-decoration: none; }
+.fieldstats-intro { max-width: 54rem; padding: clamp(3rem, 9vw, 7rem) 0 2.5rem; }
+.fieldstats-intro > p:first-child, .fieldstats-log-heading p {
+  margin: 0 0 .8rem;
+  color: #8a4d10;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+.fieldstats-intro h1 { margin: 0; font-size: clamp(3rem, 8vw, 6.5rem); letter-spacing: -.075em; line-height: .9; }
+.fieldstats-disclosure { max-width: 42rem; margin: 1.8rem 0 0; color: #625b54; line-height: 1.55; }
+
+.fieldstats-summary { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid rgba(23, 20, 17, .28); }
+.fieldstats-summary > div { min-height: 10rem; padding: 1.35rem; border-right: 1px solid rgba(23, 20, 17, .28); background: rgba(255, 250, 244, .5); }
+.fieldstats-summary > div:last-child { border-right: 0; }
+.fieldstats-summary span { display: block; font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.fieldstats-summary strong { display: block; margin-top: 2rem; font-size: clamp(2.6rem, 6vw, 5rem); letter-spacing: -.08em; line-height: .8; }
+
+.fieldstats-chart { margin-top: 3.5rem; border: 1px solid rgba(23, 20, 17, .28); background: rgba(255, 250, 244, .5); }
+.fieldstats-chart-wrap { padding: clamp(1rem, 4vw, 2.25rem); }
+.fieldstats-chart-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.fieldstats-chart-svg line { stroke: rgba(23, 20, 17, .16); stroke-width: 1; }
+.fieldstats-chart-svg .fieldstats-axis { stroke: rgba(23, 20, 17, .55); }
+.fieldstats-chart-svg rect { fill: #f08c21; }
+.fieldstats-chart-svg text { fill: #625b54; font-size: 12px; font-weight: 700; text-anchor: end; }
+.fieldstats-chart-svg .fieldstats-bar-value { fill: #171411; font-size: 15px; text-anchor: middle; }
+.fieldstats-chart-svg .fieldstats-axis-label, .fieldstats-chart-svg .fieldstats-x-title { text-anchor: middle; }
+.fieldstats-chart-svg .fieldstats-y-title { text-anchor: middle; }
+
+.fieldstats-log { margin-top: 3.5rem; border: 1px solid rgba(23, 20, 17, .28); background: rgba(255, 250, 244, .5); }
+.fieldstats-log-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; padding: 1.4rem; border-bottom: 1px solid rgba(23, 20, 17, .2); }
+.fieldstats-log-heading h2 { margin: 0; font-size: 1.7rem; letter-spacing: -.05em; }
+.fieldstats-log-heading > span { font-size: .8rem; color: #625b54; }
+.fieldstats-table-wrap { overflow-x: auto; }
+.fieldstats-table-wrap table { width: 100%; border-collapse: collapse; min-width: 40rem; }
+.fieldstats-table-wrap th, .fieldstats-table-wrap td { padding: .85rem 1.35rem; text-align: left; border-bottom: 1px solid rgba(23, 20, 17, .12); font-size: .9rem; }
+.fieldstats-table-wrap th { color: #625b54; font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; }
+.fieldstats-table-wrap tr:last-child td { border-bottom: 0; }
+.fieldstats-status { display: inline-block; min-width: 7rem; padding: .28rem .55rem; border-radius: 999px; font-size: .72rem; font-weight: 800; text-align: center; }
+.fieldstats-status.success { color: #164d31; background: #bfe5cb; }
+.fieldstats-status.failure { color: #6e1619; background: #f5c5c5; }
+.fieldstats-recorded { color: #625b54; font-size: .72rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+
+@media (max-width: 580px) {
+  .fieldstats-summary { grid-template-columns: 1fr; }
+  .fieldstats-summary > div { min-height: auto; border-right: 0; border-bottom: 1px solid rgba(23, 20, 17, .28); }
+  .fieldstats-summary > div:last-child { border-bottom: 0; }
+  .fieldstats-summary strong { margin-top: .8rem; }
+}
+
 /* Aggregate field telemetry dashboard */
 .devstats-page {
   --stats-paper: #f5efe6;
