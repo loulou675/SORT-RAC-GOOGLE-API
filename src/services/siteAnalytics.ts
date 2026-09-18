@@ -247,9 +247,6 @@ export async function trackFeature(featureCode: string, eventName: AnalyticsEven
 }
 
 export async function fetchDevStats(days: 7 | 30 | 90): Promise<DevStats> {
-  if (import.meta.env.DEV && import.meta.env.VITE_DEVSTATS_MOCK === 'true') {
-    return mockDevStats(days)
-  }
   if (!supabase) throw new Error('Analytics is not configured for this build.')
   const { data, error } = await supabase.rpc('get_devstats', {
     p_days: days,
@@ -257,82 +254,6 @@ export async function fetchDevStats(days: 7 | 30 | 90): Promise<DevStats> {
   })
   if (error) throw new Error(error.message)
   return devStatsSchema.parse(data)
-}
-
-function mockDevStats(days: 7 | 30 | 90): DevStats {
-  const visibleDays = Math.min(days, 30)
-  const daily = Array.from({ length: visibleDays }, (_, index) => {
-    const date = new Date()
-    date.setDate(date.getDate() - visibleDays + index + 1)
-    const visitors = 18 + ((index * 17) % 29)
-    return {
-      date: date.toISOString().slice(0, 10),
-      visitors,
-      sessions: visitors + 5 + (index % 8),
-      avgActiveSeconds: 88 + ((index * 13) % 96),
-      featureUses: visitors * 2 + (index % 11),
-      newVisitors: Math.max(2, Math.round(visitors * (0.55 + ((index % 3) * 0.06)))),
-      returningVisitors: Math.max(0, visitors - Math.max(2, Math.round(visitors * (0.55 + ((index % 3) * 0.06))))),
-      bounceRate: 22 + ((index * 7) % 19),
-    }
-  })
-  const factor = days / 30
-  return {
-    periodDays: days,
-    generatedAt: new Date().toISOString(),
-    totals: {
-      visitors: Math.round(742 * factor),
-      sessions: Math.round(906 * factor),
-      avgActiveSeconds: 142,
-      featureUses: Math.round(1684 * factor),
-      newVisitors: Math.round(466 * factor),
-      returningVisitors: Math.round(276 * factor),
-      repeatVisitors: Math.round(214 * factor),
-      engagedSessions: Math.round(618 * factor),
-      bounceRate: 31.8,
-      repeatVisitRate: 28.8,
-      engagementRate: 68.2,
-      avgSessionsPerVisitor: 1.22,
-    },
-    scan: {
-      scanStarts: Math.round(1002 * factor),
-      scanSuccesses: Math.round(704 * factor),
-      scanErrors: Math.round(81 * factor),
-      scanSuccessRate: 89.7,
-      feedbackSubmissions: Math.round(226 * factor),
-      surveySubmissions: Math.round(66 * factor),
-    },
-    daily,
-    visitFrequency: [
-      { bucket: '1 session', visitors: Math.round(528 * factor) },
-      { bucket: '2-3 sessions', visitors: Math.round(168 * factor) },
-      { bucket: '4-7 sessions', visitors: Math.round(35 * factor) },
-      { bucket: '8+ sessions', visitors: Math.round(11 * factor) },
-    ],
-    features: [
-      { label: 'camera_scan', uses: Math.round(588 * factor) },
-      { label: 'image_upload', uses: Math.round(414 * factor) },
-      { label: 'manual_search', uses: Math.round(278 * factor) },
-      { label: 'feedback_confirmation', uses: Math.round(226 * factor) },
-      { label: 'history', uses: Math.round(112 * factor) },
-      { label: 'survey_submitted', uses: Math.round(66 * factor) },
-    ],
-    pages: [
-      { path: '/S-RT-R-C/#/', views: Math.round(1048 * factor) },
-      { path: '/S-RT-R-C/#/history', views: Math.round(196 * factor) },
-      { path: '/S-RT-R-C/#/about', views: Math.round(84 * factor) },
-    ],
-    devices: [
-      { label: 'mobile', visitors: Math.round(525 * factor) },
-      { label: 'desktop', visitors: Math.round(163 * factor) },
-      { label: 'tablet', visitors: Math.round(54 * factor) },
-    ],
-    sources: [
-      { label: 'Direct / unknown', visitors: Math.round(428 * factor) },
-      { label: 'instagram.com', visitors: Math.round(178 * factor) },
-      { label: 'google.com', visitors: Math.round(136 * factor) },
-    ],
-  }
 }
 
 export function stopSiteAnalyticsForTests() {
